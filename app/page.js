@@ -29,6 +29,12 @@ export default function HomePage() {
   // 현재 편집 중인 메모의 제목
   const [currentMemoTitle, setCurrentMemoTitle] = useState('');
 
+  // ⭐️⭐️⭐️ 검색 쿼리 상태 추가 ⭐️⭐️⭐️
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // ⭐️⭐️⭐️ 다크 모드 상태 추가 ⭐️⭐️⭐️
+  const [isDarkMode, setIsDarkMode] = useLocalStorage('dark-mode', false);
+
   // 자동 저장을 위한 타이머 참조 (현재는 사용하지 않음)
   const autoSaveTimerRef = useRef(null);
 
@@ -44,9 +50,8 @@ export default function HomePage() {
     setToast({ message, duration, isVisible: true });
   }, []);
 
-  // ⭐️⭐️⭐️ 새 메모 생성 핸들러 (중복 제목 방지 로직 포함) - useEffect보다 위로 이동 ⭐️⭐️⭐️
+  // ⭐️⭐️⭐️ 새 메모 생성 핸들러 (중복 제목 방지 로직 포함) ⭐️⭐️⭐️
   const handleNewMemo = useCallback(() => {
-    // 1. 새 메모의 고유한 제목 생성
     let newTitle = getFormattedDate();
     let counter = 0;
     while (memos.some(memo => memo.title === newTitle)) {
@@ -54,25 +59,21 @@ export default function HomePage() {
       newTitle = `${getFormattedDate()} (${counter})`;
     }
 
-    // 2. 새 메모 객체 생성
     const newMemo = {
       id: uuidv4(),
-      title: newTitle, // 고유한 제목 사용
-      content: '', // 빈 내용
+      title: newTitle,
+      content: '',
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
 
-    // 3. memos 리스트에 새 메모를 즉시 추가 (맨 앞에 추가)
     setMemos(prevMemos => [newMemo, ...prevMemos]);
-
-    // 4. 새로 추가된 메모를 현재 선택된 메모로 설정하여 에디터에 표시
     setSelectedMemoId(newMemo.id);
-    setCurrentMemoContent(newMemo.content); // 새 메모의 빈 내용 설정
-    setCurrentMemoTitle(newMemo.title); // 새 메모의 제목 설정
+    setCurrentMemoContent(newMemo.content);
+    setCurrentMemoTitle(newMemo.title);
 
     showToast('새 메모가 리스트에 추가되었습니다.', 1500);
-  }, [memos, setMemos, showToast]); // memos 의존성 추가
+  }, [memos, setMemos, showToast]);
 
   // 선택된 메모가 변경될 때마다 내용을 에디터에 로드
   useEffect(() => {
@@ -81,19 +82,14 @@ export default function HomePage() {
       setCurrentMemoContent(memo.content);
       setCurrentMemoTitle(memo.title);
     } else {
-      // 선택된 메모가 없거나 새로운 메모를 만들 때 (초기 로드 시 또는 모든 메모 삭제 후)
       setCurrentMemoContent('');
-      setCurrentMemoTitle(getFormattedDate()); // 기본 제목을 오늘의 날짜로 설정 (사용자 입력 대기)
+      setCurrentMemoTitle(getFormattedDate());
     }
   }, [selectedMemoId, memos]);
 
-  // ⭐️⭐️⭐️ 중요: 클라이언트에서 memos 데이터 로드 후 초기 메모 처리 로직 변경 ⭐️⭐️⭐️
-  // handleNewMemo가 이 useEffect보다 먼저 정의되도록 순서를 변경했습니다.
+  // ⭐️⭐️⭐️ 초기 메모 처리 로직 (페이지 로드 시) ⭐️⭐️⭐️
   useEffect(() => {
-    // 이펙트가 마운트될 때 (selectedMemoId가 아직 null일 때) 한 번만 실행
-    // useLocalStorage 훅 덕분에 memos는 클라이언트에서 로드된 후 업데이트됨
     if (selectedMemoId === null && memos.length > 0) {
-      // 메모가 하나라도 존재하면, 가장 최근 업데이트된 메모를 선택
       const latestMemo = memos.reduce((prev, current) =>
         (prev.updatedAt > current.updatedAt) ? prev : current
       );
@@ -101,20 +97,25 @@ export default function HomePage() {
       setCurrentMemoContent(latestMemo.content);
       setCurrentMemoTitle(latestMemo.title);
     }
-    // else 블록 (메모가 하나도 없을 때 자동으로 새 메모를 생성하던 로직)은 제거되었습니다.
-    // 이제 이 경우에도 아무것도 선택되지 않은 빈 상태로 시작합니다.
   }, [memos, selectedMemoId]);
+
+  // ⭐️⭐️⭐️ 다크 모드 클래스 적용 ⭐️⭐️⭐️
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   // 메모 저장 로직 (수동 저장 버튼에 연결)
   const saveCurrentMemo = useCallback(() => {
-    // 내용이나 제목이 전혀 없을 경우 저장하지 않고 알림
     if (!currentMemoContent.trim() && !currentMemoTitle.trim()) {
       showToast('저장할 내용이나 제목이 없습니다.', 1500);
       return;
     }
 
     if (selectedMemoId) {
-      // 기존 메모 업데이트
       setMemos(prevMemos =>
         prevMemos.map(memo =>
           memo.id === selectedMemoId
@@ -124,32 +125,27 @@ export default function HomePage() {
       );
       showToast('메모가 업데이트되었습니다!', 1500);
     } else {
-      // 이 else 블록은 handleNewMemo가 호출되지 않고
-      // 에디터에 바로 내용을 입력하고 저장하는 드문 경우에만 실행됩니다.
-      // 이 경우에도 고유한 제목을 생성하도록 로직 추가
-      let newTitle = currentMemoTitle.trim() || getFormattedDate(); // 현재 제목이 있으면 사용, 없으면 날짜 사용
+      let newTitle = currentMemoTitle.trim() || getFormattedDate();
       let counter = 0;
-      // 생성하려는 제목이 이미 존재하는지 확인하고 숫자를 붙여 고유하게 만듦
       while (memos.some(memo => memo.title === newTitle)) {
         counter++;
-        // 사용자가 직접 입력한 제목에 "(숫자)"를 붙이는 로직 강화
-        if (newTitle.startsWith(getFormattedDate())) { // 제목이 날짜로 시작하면 날짜 포맷 유지
+        if (newTitle.startsWith(getFormattedDate())) {
           newTitle = `${getFormattedDate()} (${counter})`;
-        } else { // 날짜가 아니면 원래 제목에 숫자만 붙임
-          const baseTitle = newTitle.replace(/\s*\(\d+\)$/, ''); // 기존의 "(숫자)" 제거
+        } else {
+          const baseTitle = newTitle.replace(/\s*\(\d+\)$/, '');
           newTitle = `${baseTitle} (${counter})`;
         }
       }
 
       const newMemo = {
         id: uuidv4(),
-        title: newTitle, // 고유한 제목 사용
+        title: newTitle,
         content: currentMemoContent,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
       setMemos(prevMemos => [newMemo, ...prevMemos]);
-      setSelectedMemoId(newMemo.id); // 새로 생성된 메모를 선택
+      setSelectedMemoId(newMemo.id);
       showToast('새 메모가 성공적으로 저장되었습니다!', 1500);
     }
   }, [selectedMemoId, currentMemoContent, currentMemoTitle, memos, setMemos, showToast]);
@@ -169,11 +165,10 @@ export default function HomePage() {
   const confirmDelete = () => {
     setMemos(prevMemos => {
       const updatedMemos = prevMemos.filter(memo => memo.id !== memoToDeleteId);
-      // 삭제 후 메모가 하나도 없다면 선택 상태를 초기화
       if (selectedMemoId === memoToDeleteId) {
         setSelectedMemoId(null);
         setCurrentMemoContent('');
-        setCurrentMemoTitle(getFormattedDate()); // 기본 제목으로 설정
+        setCurrentMemoTitle(getFormattedDate());
       }
       return updatedMemos;
     });
@@ -191,7 +186,6 @@ export default function HomePage() {
 
   // 메모 제목 업데이트 핸들러
   const handleUpdateMemoTitle = (id, newTitle) => {
-    // 제목 중복 방지 (사용자 직접 수정 시)
     let finalTitle = newTitle;
     let counter = 0;
     while (memos.some(memo => memo.id !== id && memo.title === finalTitle)) {
@@ -217,14 +211,10 @@ export default function HomePage() {
       return;
     }
 
-    // CSV 헤더 정의
     const headers = ['ID', '제목', '내용', '생성일', '수정일'];
 
-    // CSV 행 생성 함수 (콤마, 따옴표, 개행 문자 처리)
     const escapeCsvField = (field) => {
       if (field === null || typeof field === 'undefined') return '';
-      // 필드에 콤마, 따옴표, 개행 문자가 포함되어 있으면 따옴표로 감싸고,
-      // 내부의 따옴표는 이스케이프(두 번 반복)
       const stringField = String(field);
       if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
         return `"${stringField.replace(/"/g, '""')}"`;
@@ -232,9 +222,7 @@ export default function HomePage() {
       return stringField;
     };
 
-    // 메모 데이터를 CSV 형식으로 변환
     const csvRows = memos.map(memo => {
-      // 날짜는 ISO 문자열로 변환하여 로케일 독립적으로 표시
       const createdAtFormatted = new Date(memo.createdAt).toISOString();
       const updatedAtFormatted = new Date(memo.updatedAt).toISOString();
 
@@ -244,36 +232,102 @@ export default function HomePage() {
         escapeCsvField(memo.content),
         escapeCsvField(createdAtFormatted),
         escapeCsvField(updatedAtFormatted)
-      ].join(','); // 각 필드를 콤마로 연결
+      ].join(',');
     });
 
-    // 헤더와 모든 행을 개행 문자로 연결
     const csvContent = [
-      headers.join(','), // 헤더 행
-      ...csvRows          // 데이터 행들
+      headers.join(','),
+      ...csvRows
     ].join('\n');
 
-    // Blob 객체 생성 (UTF-8 인코딩 지정)
-    const blob = new Blob(['\ufeff', csvContent], { type: 'text/csv;charset=utf-8;' }); // BOM 추가하여 한글 깨짐 방지
-
-    // 다운로드를 위한 임시 URL 생성
+    const blob = new Blob(['\ufeff', csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `memo_backup_${getFormattedDate()}.csv`; // 파일명 설정 (오늘 날짜 포함)
+    a.download = `memo_backup_${getFormattedDate()}.csv`;
 
-    // 다운로드 트리거
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url); // 임시 URL 해제
+    URL.revokeObjectURL(url);
 
     showToast('메모가 CSV 파일로 내보내졌습니다!', 1500);
-  }, [memos, showToast]); // memos 의존성 추가
+  }, [memos, showToast]);
+
+  // ⭐️⭐️⭐️ CSV 파일을 읽어 메모를 가져오는 함수 ⭐️⭐️⭐️
+  const handleImportMemosFromCsv = useCallback((file) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const csvText = event.target.result;
+      const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+      if (lines.length <= 1) {
+        showToast('가져올 메모 내용이 없습니다.', 2000);
+        return;
+      }
+
+      const newMemos = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+        if (parts.length >= 5) {
+          const title = parts[1].replace(/^"|"$/g, '').replace(/""/g, '"');
+          const content = parts[2].replace(/^"|"$/g, '').replace(/""/g, '"');
+          const createdAt = new Date(parts[3]).getTime();
+          const updatedAt = new Date(parts[4]).getTime();
+
+          let uniqueId = uuidv4();
+          while (memos.some(m => m.id === uniqueId) || newMemos.some(m => m.id === uniqueId)) {
+            uniqueId = uuidv4();
+          }
+
+          let finalTitle = title;
+          let counter = 0;
+          while (memos.some(memo => memo.title === finalTitle) || newMemos.some(memo => memo.title === finalTitle)) {
+            counter++;
+            finalTitle = `${title} (${counter})`;
+          }
+
+          newMemos.push({
+            id: uniqueId,
+            title: finalTitle,
+            content: content,
+            createdAt: isNaN(createdAt) ? Date.now() : createdAt,
+            updatedAt: isNaN(updatedAt) ? Date.now() : updatedAt,
+          });
+        }
+      }
+
+      if (newMemos.length > 0) {
+        setMemos(prevMemos => [...newMemos, ...prevMemos]);
+        showToast(`${newMemos.length}개의 메모를 성공적으로 가져왔습니다!`, 2500);
+      } else {
+        showToast('가져올 수 있는 유효한 메모가 없습니다.', 2500);
+      }
+    };
+    reader.onerror = () => {
+      showToast('파일을 읽는 중 오류가 발생했습니다.', 2500);
+    };
+    reader.readAsText(file, 'UTF-8');
+  }, [memos, setMemos, showToast]);
+
+  // ⭐️⭐️⭐️ 다크 모드 토글 함수 ⭐️⭐️⭐️
+  const handleToggleDarkMode = useCallback(() => {
+    setIsDarkMode(prevMode => !prevMode);
+  }, [setIsDarkMode]);
+
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 font-sans">
-      <Header onNewMemo={handleNewMemo} onShowMessage={showToast} onExportMemos={handleExportMemosToCsv} /> {/* ⭐️ onExportMemos prop 전달 ⭐️ */}
+    <div className={`flex flex-col h-screen ${isDarkMode ? 'dark' : ''} font-sans`}>
+      <Header
+        onNewMemo={handleNewMemo}
+        onShowMessage={showToast}
+        onExportMemos={handleExportMemosToCsv}
+        onImportMemos={handleImportMemosFromCsv}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+      />
       <div className="flex flex-grow overflow-hidden">
         <MemoList
           memos={memos}
@@ -281,6 +335,8 @@ export default function HomePage() {
           onSelectMemo={handleSelectMemo}
           onDeleteMemo={handleDeleteMemo}
           onUpdateMemoTitle={handleUpdateMemoTitle}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
         <MemoEditor
           content={currentMemoContent}
@@ -288,18 +344,16 @@ export default function HomePage() {
           title={currentMemoTitle}
           onTitleChange={setCurrentMemoTitle}
           onSaveMemo={saveCurrentMemo}
-          isListEmpty={memos.length === 0} // ⭐️ 새로 추가된 prop ⭐️
-          onNewMemoClick={handleNewMemo} // 새 메모 유도 버튼을 위한 prop
+          isListEmpty={memos.length === 0}
+          onNewMemoClick={handleNewMemo}
         />
       </div>
-      {/* 삭제 확인 모달 */}
       <ConfirmModal
         isOpen={isModalOpen}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
         message="정말로 이 메모를 삭제하시겠습니까?"
       />
-      {/* ⭐️ 토스트 메시지 컴포넌트 렌더링 ⭐️ */}
       <ToastMessage
         message={toast.message}
         duration={toast.duration}

@@ -7,6 +7,8 @@ const MemoList = ({
   onSelectMemo,
   onDeleteMemo,
   onUpdateMemoTitle,
+  searchQuery, // ⭐️⭐️⭐️ 검색 쿼리 prop 추가 ⭐️⭐️⭐️
+  onSearchChange, // ⭐️⭐️⭐️ 검색 쿼리 변경 핸들러 prop 추가 ⭐️⭐️⭐️
 }) => {
   // 제목 수정 상태 관리
   const [editingMemoId, setEditingMemoId] = React.useState(null);
@@ -37,12 +39,12 @@ const MemoList = ({
   };
 
   // 메모 목록을 최신 업데이트 순으로 정렬 (원본 배열을 변경하지 않도록 복사본 사용)
+  // 검색 기능은 page.js에서 필터링된 memos를 받아오므로 여기서 추가 필터링은 필요 없습니다.
   const sortedMemos = [...memos].sort((a, b) => b.updatedAt - a.updatedAt);
 
   // 날짜를 일관된 형식으로 포맷팅하는 헬퍼 함수
   const formatDateTime = (timestamp) => {
     const date = new Date(timestamp);
-    // YYYY-MM-DD HH:MM 형식으로 고정 (서버-클라이언트 일관성을 위해 toLocaleString 사용 안함)
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -52,17 +54,29 @@ const MemoList = ({
   };
 
   return (
-    <aside className="w-80 bg-white border-r border-gray-200 p-4 overflow-y-auto shadow-inner rounded-l-lg">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">내 메모</h2>
+    <aside className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-4 overflow-y-auto shadow-inner rounded-l-lg">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">내 메모</h2>
+      {/* ⭐️⭐️⭐️ 검색 입력 필드 추가 ⭐️⭐️⭐️ */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="메모 검색..."
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      </div>
       <ul>
-        {memos.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">아직 저장된 메모가 없습니다.</p>
+        {memos.length === 0 && searchQuery === '' ? ( // 검색어가 없고 메모가 없을 때만 메시지 표시
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">아직 저장된 메모가 없습니다.</p>
+        ) : memos.length === 0 && searchQuery !== '' ? ( // 검색 결과가 없을 때
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">검색 결과가 없습니다.</p>
         ) : (
           sortedMemos.map(memo => (
             <li
               key={memo.id}
               className={`mb-2 p-3 rounded-lg cursor-pointer transition duration-200 ease-in-out transform hover:scale-[1.01]
-                ${selectedMemoId === memo.id ? 'bg-blue-100 border border-blue-400 shadow-md' : 'hover:bg-gray-50'}`
+                ${selectedMemoId === memo.id ? 'bg-blue-100 border border-blue-400 shadow-md dark:bg-blue-800 dark:border-blue-600' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`
               }
               onClick={() => onSelectMemo(memo.id)}
             >
@@ -75,12 +89,12 @@ const MemoList = ({
                     onBlur={() => handleTitleBlur(memo.id)}
                     onKeyDown={(e) => handleTitleKeyDown(e, memo.id)}
                     autoFocus
-                    className="flex-grow border rounded px-2 py-1 mr-2 text-lg font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    onClick={(e) => e.stopPropagation()} // 클릭 이벤트 전파 방지
+                    className="flex-grow border rounded px-2 py-1 mr-2 text-lg font-medium text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white dark:bg-gray-700"
+                    onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
                   <h3
-                    className="text-lg font-medium text-gray-900 truncate"
+                    className="text-lg font-medium text-gray-900 dark:text-gray-100 truncate"
                     onDoubleClick={() => handleTitleDoubleClick(memo)}
                   >
                     {memo.title}
@@ -88,10 +102,10 @@ const MemoList = ({
                 )}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // 부모 리스트 아이템의 클릭 이벤트 방지
-                    onDeleteMemo(memo.id); // 삭제 핸들러 호출
+                    e.stopPropagation();
+                    onDeleteMemo(memo.id);
                   }}
-                  className="ml-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 transition duration-200"
+                  className="ml-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 transition duration-200 dark:hover:bg-red-900"
                   title="메모 삭제"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -99,8 +113,8 @@ const MemoList = ({
                   </svg>
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mt-1">
-                {formatDateTime(memo.updatedAt)} {/* ⭐️⭐️⭐️ 수정된 날짜 포맷 함수 사용 ⭐️⭐️⭐️ */}
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {formatDateTime(memo.updatedAt)}
               </p>
             </li>
           ))
