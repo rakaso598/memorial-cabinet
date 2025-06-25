@@ -210,9 +210,70 @@ export default function HomePage() {
     showToast('메모 제목이 업데이트되었습니다.', 1000);
   };
 
+  // ⭐️⭐️⭐️ 메모 전체를 CSV로 내보내는 함수 ⭐️⭐️⭐️
+  const handleExportMemosToCsv = useCallback(() => {
+    if (memos.length === 0) {
+      showToast('내보낼 메모가 없습니다.', 1500);
+      return;
+    }
+
+    // CSV 헤더 정의
+    const headers = ['ID', '제목', '내용', '생성일', '수정일'];
+
+    // CSV 행 생성 함수 (콤마, 따옴표, 개행 문자 처리)
+    const escapeCsvField = (field) => {
+      if (field === null || typeof field === 'undefined') return '';
+      // 필드에 콤마, 따옴표, 개행 문자가 포함되어 있으면 따옴표로 감싸고,
+      // 내부의 따옴표는 이스케이프(두 번 반복)
+      const stringField = String(field);
+      if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+        return `"${stringField.replace(/"/g, '""')}"`;
+      }
+      return stringField;
+    };
+
+    // 메모 데이터를 CSV 형식으로 변환
+    const csvRows = memos.map(memo => {
+      // 날짜는 ISO 문자열로 변환하여 로케일 독립적으로 표시
+      const createdAtFormatted = new Date(memo.createdAt).toISOString();
+      const updatedAtFormatted = new Date(memo.updatedAt).toISOString();
+
+      return [
+        escapeCsvField(memo.id),
+        escapeCsvField(memo.title),
+        escapeCsvField(memo.content),
+        escapeCsvField(createdAtFormatted),
+        escapeCsvField(updatedAtFormatted)
+      ].join(','); // 각 필드를 콤마로 연결
+    });
+
+    // 헤더와 모든 행을 개행 문자로 연결
+    const csvContent = [
+      headers.join(','), // 헤더 행
+      ...csvRows          // 데이터 행들
+    ].join('\n');
+
+    // Blob 객체 생성 (UTF-8 인코딩 지정)
+    const blob = new Blob(['\ufeff', csvContent], { type: 'text/csv;charset=utf-8;' }); // BOM 추가하여 한글 깨짐 방지
+
+    // 다운로드를 위한 임시 URL 생성
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `memo_backup_${getFormattedDate()}.csv`; // 파일명 설정 (오늘 날짜 포함)
+
+    // 다운로드 트리거
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // 임시 URL 해제
+
+    showToast('메모가 CSV 파일로 내보내졌습니다!', 1500);
+  }, [memos, showToast]); // memos 의존성 추가
+
   return (
     <div className="flex flex-col h-screen bg-gray-100 font-sans">
-      <Header onNewMemo={handleNewMemo} onShowMessage={showToast} />
+      <Header onNewMemo={handleNewMemo} onShowMessage={showToast} onExportMemos={handleExportMemosToCsv} /> {/* ⭐️ onExportMemos prop 전달 ⭐️ */}
       <div className="flex flex-grow overflow-hidden">
         <MemoList
           memos={memos}
