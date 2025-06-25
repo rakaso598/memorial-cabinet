@@ -38,9 +38,12 @@ export default function HomePage() {
   // 자동 저장을 위한 타이머 참조 (현재는 사용하지 않음)
   const autoSaveTimerRef = useRef(null);
 
-  // 삭제 확인 모달 관련 상태
+  // 삭제 확인 모달 관련 상태 (개별 삭제용)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [memoToDeleteId, setMemoToDeleteId] = useState(null);
+
+  // ⭐️⭐️⭐️ 전체 삭제 확인 모달 관련 상태 ⭐️⭐️⭐️
+  const [isConfirmAllModalOpen, setIsConfirmAllModalOpen] = useState(false);
 
   // ⭐️ 토스트 메시지 상태 ⭐️
   const [toast, setToast] = useState({ message: '', duration: 0, isVisible: false });
@@ -155,13 +158,13 @@ export default function HomePage() {
     setSelectedMemoId(id);
   };
 
-  // 메모 삭제 핸들러 (모달 열기)
+  // 메모 개별 삭제 핸들러 (모달 열기)
   const handleDeleteMemo = (id) => {
     setMemoToDeleteId(id);
     setIsModalOpen(true);
   };
 
-  // 모달에서 삭제 확정 시 실행될 함수
+  // 모달에서 개별 삭제 확정 시 실행될 함수
   const confirmDelete = () => {
     setMemos(prevMemos => {
       const updatedMemos = prevMemos.filter(memo => memo.id !== memoToDeleteId);
@@ -178,11 +181,35 @@ export default function HomePage() {
     showToast('메모가 삭제되었습니다.', 1500);
   };
 
-  // 모달에서 삭제 취소 시 실행될 함수
+  // 모달에서 개별 삭제 취소 시 실행될 함수
   const cancelDelete = () => {
     setIsModalOpen(false);
     setMemoToDeleteId(null);
   };
+
+  // ⭐️⭐️⭐️ 전체 메모 삭제 핸들러 (모달 열기) ⭐️⭐️⭐️
+  const handleDeleteAllMemos = useCallback(() => {
+    if (memos.length === 0) {
+      showToast('삭제할 메모가 없습니다.', 1500);
+      return;
+    }
+    setIsConfirmAllModalOpen(true);
+  }, [memos, showToast]);
+
+  // ⭐️⭐️⭐️ 모달에서 전체 삭제 확정 시 실행될 함수 ⭐️⭐️⭐️
+  const confirmDeleteAll = useCallback(() => {
+    setMemos([]); // 모든 메모 삭제
+    setSelectedMemoId(null); // 선택된 메모 초기화
+    setCurrentMemoContent(''); // 현재 내용 초기화
+    setCurrentMemoTitle(getFormattedDate()); // 현재 제목 초기화
+    setIsConfirmAllModalOpen(false); // 모달 닫기
+    showToast('모든 메모가 삭제되었습니다!', 1500);
+  }, [setMemos, showToast]);
+
+  // ⭐️⭐️⭐️ 모달에서 전체 삭제 취소 시 실행될 함수 ⭐️⭐️⭐️
+  const cancelDeleteAll = useCallback(() => {
+    setIsConfirmAllModalOpen(false);
+  }, []);
 
   // 메모 제목 업데이트 핸들러
   const handleUpdateMemoTitle = (id, newTitle) => {
@@ -317,6 +344,11 @@ export default function HomePage() {
     setIsDarkMode(prevMode => !prevMode);
   }, [setIsDarkMode]);
 
+  // ⭐️⭐️⭐️ MemoList에 전달할 필터링된 메모 목록 ⭐️⭐️⭐️
+  const filteredMemos = memos.filter(memo =>
+    memo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    memo.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className={`flex flex-col h-screen ${isDarkMode ? 'dark' : ''} font-sans`}>
@@ -327,10 +359,11 @@ export default function HomePage() {
         onImportMemos={handleImportMemosFromCsv}
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleDarkMode}
+        onDeleteAllMemos={handleDeleteAllMemos}
       />
       <div className="flex flex-grow overflow-hidden">
         <MemoList
-          memos={memos}
+          memos={filteredMemos}
           selectedMemoId={selectedMemoId}
           onSelectMemo={handleSelectMemo}
           onDeleteMemo={handleDeleteMemo}
@@ -348,11 +381,19 @@ export default function HomePage() {
           onNewMemoClick={handleNewMemo}
         />
       </div>
+      {/* 개별 삭제 확인 모달 */}
       <ConfirmModal
         isOpen={isModalOpen}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
         message="정말로 이 메모를 삭제하시겠습니까?"
+      />
+      {/* ⭐️⭐️⭐️ 전체 삭제 확인 모달 ⭐️⭐️⭐️ */}
+      <ConfirmModal
+        isOpen={isConfirmAllModalOpen}
+        onConfirm={confirmDeleteAll}
+        onCancel={cancelDeleteAll}
+        message="정말로 모든 메모를 삭제하시겠습니까?"
       />
       <ToastMessage
         message={toast.message}
