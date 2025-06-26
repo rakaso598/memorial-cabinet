@@ -23,7 +23,7 @@
 <details>
 <summary>CSV 내보내기</summary>
 
-![image](https://github.com/user-attachments/assets/8d15d323-697b-4a06-a357-cefaf43b8045)
+![내보화면 캡처 2025-06-26 152132](https://github.com/user-attachments/assets/e57177e0-9989-4156-93f9-b692794927df)
 
 ![화면 캡처 2025-06-26 151717](https://github.com/user-attachments/assets/b0ca12f7-fadc-4804-854d-e3315059d820)
 
@@ -32,7 +32,7 @@
 <details>
 <summary>CSV 가져오기</summary>
 
-![image](https://github.com/user-attachments/assets/e146b9e4-876d-436c-8cfc-5f380d2fe91f)
+![성공화면 캡처 2025-06-26 152118](https://github.com/user-attachments/assets/0646dd3d-3992-4001-89a5-20470e1af55c)
 
 </details>
 
