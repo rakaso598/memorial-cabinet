@@ -1,6 +1,52 @@
 # 📝 [브라우저 메모장 앱](https://browser-local-memo.vercel.app)
 
+![image](https://github.com/user-attachments/assets/061672d8-673d-4cd4-b992-9c455d7fe266)
+
 이 프로젝트는 **Next.js App Router와 React**를 기반으로 한 로컬 스토리지 기반의 브라우저 메모장 웹 애플리케이션입니다. 사용자가 웹 브라우저에서 편리하게 메모를 작성하고 관리할 수 있도록 다양한 기능을 제공합니다.
+
+아래 드롭다운에서 시연 이미지를 볼 수 있습니다.
+
+<details>
+<summary>편집 모드</summary>
+
+![image](https://github.com/user-attachments/assets/f75e6cdf-fe92-47ef-ba51-bd0188af633f)
+
+</details>
+
+<details>
+<summary>마크다운 미리보기</summary>
+
+![image](https://github.com/user-attachments/assets/ec7d77b0-9ca3-4777-bb60-18c058304675)
+
+</details>
+
+<details>
+<summary>CSV 내보내기</summary>
+
+![image](https://github.com/user-attachments/assets/8d15d323-697b-4a06-a357-cefaf43b8045)
+
+</details>
+
+<details>
+<summary>CSV 가져오기</summary>
+
+![image](https://github.com/user-attachments/assets/e146b9e4-876d-436c-8cfc-5f380d2fe91f)
+
+</details>
+
+<details>
+<summary>메모 검색</summary>
+
+![image](https://github.com/user-attachments/assets/087969ca-41af-4a8e-94d8-ffbd19ce6ea8)
+
+</details>
+
+<details>
+<summary>전체삭제 클릭 시</summary>
+
+![image](https://github.com/user-attachments/assets/3b4af805-c9e9-4b34-ae11-7e50552bb308)
+
+</details>
 
 ## ✨ 주요 기능
 
