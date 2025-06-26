@@ -37,7 +37,7 @@ export default function HomePage() {
 
   const [toast, setToast] = useState({ message: '', duration: 0, isVisible: false });
 
-  const showToast = useCallback((message, duration = 1500) => {
+  const showToast = useCallback((message, duration = 1000) => { // 기본 duration을 1000ms로 변경
     setToast({ message, duration, isVisible: true });
   }, []);
 
@@ -63,7 +63,7 @@ export default function HomePage() {
     setCurrentMemoContent(newMemo.content);
     setCurrentMemoTitle(newMemo.title);
 
-    showToast('새 메모가 리스트에 추가되었습니다.', 1500);
+    showToast('새 메모가 리스트에 추가되었습니다.', 1000); // 1초로 변경
   }, [memos, setMemos, showToast]);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function HomePage() {
 
   const saveCurrentMemo = useCallback(() => {
     if (!currentMemoContent.trim() && !currentMemoTitle.trim()) {
-      showToast('저장할 내용이나 제목이 없습니다.', 1500);
+      showToast('저장할 내용이나 제목이 없습니다.', 1000); // 1초로 변경
       return;
     }
 
@@ -110,7 +110,7 @@ export default function HomePage() {
             : memo
         )
       );
-      showToast('메모가 업데이트되었습니다!', 1500);
+      showToast('메모가 업데이트되었습니다!', 1000); // 1초로 변경
     } else {
       let newTitleBase = "새 메모";
       let newTitle = currentMemoTitle.trim() || newTitleBase;
@@ -130,7 +130,7 @@ export default function HomePage() {
       };
       setMemos(prevMemos => [newMemo, ...prevMemos]);
       setSelectedMemoId(newMemo.id);
-      showToast('새 메모가 성공적으로 저장되었습니다!', 1500);
+      showToast('새 메모가 성공적으로 저장되었습니다!', 1000); // 1초로 변경
     }
   }, [selectedMemoId, currentMemoContent, currentMemoTitle, memos, setMemos, showToast]);
 
@@ -156,7 +156,7 @@ export default function HomePage() {
 
     setIsModalOpen(false);
     setMemoToDeleteId(null);
-    showToast('메모가 삭제되었습니다.', 1500);
+    showToast('메모가 삭제되었습니다.', 1000); // 1초로 변경
   };
 
   const cancelDelete = () => {
@@ -166,7 +166,7 @@ export default function HomePage() {
 
   const handleDeleteAllMemos = useCallback(() => {
     if (memos.length === 0) {
-      showToast('삭제할 메모가 없습니다.', 1500);
+      showToast('삭제할 메모가 없습니다.', 1000); // 1초로 변경
       return;
     }
     setIsConfirmAllModalOpen(true);
@@ -178,7 +178,7 @@ export default function HomePage() {
     setCurrentMemoContent('');
     setCurrentMemoTitle("새 메모");
     setIsConfirmAllModalOpen(false);
-    showToast('모든 메모가 삭제되었습니다!', 1500);
+    showToast('모든 메모가 삭제되었습니다!', 1000); // 1초로 변경
   }, [setMemos, showToast]);
 
   const cancelDeleteAll = useCallback(() => {
@@ -201,12 +201,12 @@ export default function HomePage() {
     if (selectedMemoId === id) {
       setCurrentMemoTitle(finalTitle);
     }
-    showToast('메모 제목이 업데이트되었습니다.', 1000);
+    showToast('메모 제목이 업데이트되었습니다.', 1000); // 1초로 변경
   };
 
   const handleExportMemosToCsv = useCallback(() => {
     if (memos.length === 0) {
-      showToast('내보낼 메모가 없습니다.', 1500);
+      showToast('내보낼 메모가 없습니다.', 1000); // 1초로 변경
       return;
     }
 
@@ -250,7 +250,7 @@ export default function HomePage() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showToast('메모가 CSV 파일로 내보내졌습니다!', 1500);
+    showToast('메모가 CSV 파일로 내보내졌습니다!', 1000); // 1초로 변경
   }, [memos, showToast]);
 
   const handleImportMemosFromCsv = useCallback((file) => {
@@ -260,7 +260,7 @@ export default function HomePage() {
       const lines = csvText.split('\n').filter(line => line.trim() !== '');
 
       if (lines.length <= 1) {
-        showToast('가져올 메모 내용이 없습니다.', 2000);
+        showToast('가져올 메모 내용이 없습니다.', 1000); // 1초로 변경
         return;
       }
 
@@ -299,13 +299,13 @@ export default function HomePage() {
 
       if (newMemos.length > 0) {
         setMemos(prevMemos => [...newMemos, ...prevMemos]);
-        showToast(`${newMemos.length}개의 메모를 성공적으로 가져왔습니다!`, 2500);
+        showToast(`${newMemos.length}개의 메모를 성공적으로 가져왔습니다!`, 1000); // 1초로 변경
       } else {
-        showToast('가져올 수 있는 유효한 메모가 없습니다.', 2500);
+        showToast('가져올 수 있는 유효한 메모가 없습니다.', 1000); // 1초로 변경
       }
     };
     reader.onerror = () => {
-      showToast('파일을 읽는 중 오류가 발생했습니다.', 2500);
+      showToast('파일을 읽는 중 오류가 발생했습니다.', 1000); // 1초로 변경
     };
     reader.readAsText(file, 'UTF-8');
   }, [memos, setMemos, showToast]);
