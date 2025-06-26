@@ -25,6 +25,8 @@
 
 ![image](https://github.com/user-attachments/assets/8d15d323-697b-4a06-a357-cefaf43b8045)
 
+![화면 캡처 2025-06-26 151717](https://github.com/user-attachments/assets/b0ca12f7-fadc-4804-854d-e3315059d820)
+
 </details>
 
 <details>
