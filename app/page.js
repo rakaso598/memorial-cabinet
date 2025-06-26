@@ -1,65 +1,53 @@
 // src/app/page.js
-'use client'; // 클라이언트 컴포넌트로 지정
+'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { v4 as uuidv4 } from 'uuid'; // 고유 ID 생성을 위해 uuid 라이브러리 설치 필요: npm install uuid
+import { v4 as uuidv4 } from 'uuid';
 import MemoList from '../components/MemoList';
 import MemoEditor from '../components/MemoEditor';
-import Header from '../components/Header'; // 헤더 컴포넌트 추가
-import ConfirmModal from '../components/ConfirmModal'; // 커스텀 확인 모달 추가
-import ToastMessage from '../components/ToastMessage'; // 토스트 메시지 컴포넌트
+import Header from '../components/Header';
+import ConfirmModal from '../components/ConfirmModal';
+import ToastMessage from '../components/ToastMessage';
 
-// 오늘의 날짜를 'YYYY-MM-DD' 형식으로 반환하는 헬퍼 함수
 const getFormattedDate = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+  const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
 export default function HomePage() {
-  // 로컬 스토리지에서 메모 목록을 불러오거나 초기값으로 빈 배열 사용
   const [memos, setMemos] = useLocalStorage('my-browser-memos', []);
-  // 현재 선택된 메모의 ID
   const [selectedMemoId, setSelectedMemoId] = useState(null);
-  // 현재 편집 중인 메모의 내용
   const [currentMemoContent, setCurrentMemoContent] = useState('');
-  // 현재 편집 중인 메모의 제목
   const [currentMemoTitle, setCurrentMemoTitle] = useState('');
 
-  // ⭐️⭐️⭐️ 검색 쿼리 상태 추가 ⭐️⭐️⭐️
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ⭐️⭐️⭐️ 다크 모드 상태 추가 ⭐️⭐️⭐️
   const [isDarkMode, setIsDarkMode] = useLocalStorage('dark-mode', false);
 
-  // 자동 저장을 위한 타이머 참조 (현재는 사용하지 않음)
   const autoSaveTimerRef = useRef(null);
 
-  // 삭제 확인 모달 관련 상태 (개별 삭제용)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [memoToDeleteId, setMemoToDeleteId] = useState(null);
 
-  // ⭐️⭐️⭐️ 전체 삭제 확인 모달 관련 상태 ⭐️⭐️⭐️
   const [isConfirmAllModalOpen, setIsConfirmAllModalOpen] = useState(false);
 
-  // ⭐️ 토스트 메시지 상태 ⭐️
   const [toast, setToast] = useState({ message: '', duration: 0, isVisible: false });
 
-  // 토스트 메시지를 표시하는 함수
   const showToast = useCallback((message, duration = 1500) => {
     setToast({ message, duration, isVisible: true });
   }, []);
 
-  // ⭐️⭐️⭐️ 새 메모 생성 핸들러 (중복 제목 방지 로직 포함) ⭐️⭐️⭐️
   const handleNewMemo = useCallback(() => {
-    let newTitle = getFormattedDate();
+    let newTitleBase = "새 메모";
+    let newTitle = newTitleBase;
     let counter = 0;
     while (memos.some(memo => memo.title === newTitle)) {
       counter++;
-      newTitle = `${getFormattedDate()} (${counter})`;
+      newTitle = `${newTitleBase} (${counter})`;
     }
 
     const newMemo = {
@@ -78,7 +66,6 @@ export default function HomePage() {
     showToast('새 메모가 리스트에 추가되었습니다.', 1500);
   }, [memos, setMemos, showToast]);
 
-  // 선택된 메모가 변경될 때마다 내용을 에디터에 로드
   useEffect(() => {
     const memo = memos.find(m => m.id === selectedMemoId);
     if (memo) {
@@ -86,11 +73,10 @@ export default function HomePage() {
       setCurrentMemoTitle(memo.title);
     } else {
       setCurrentMemoContent('');
-      setCurrentMemoTitle(getFormattedDate());
+      setCurrentMemoTitle("새 메모");
     }
   }, [selectedMemoId, memos]);
 
-  // ⭐️⭐️⭐️ 초기 메모 처리 로직 (페이지 로드 시) ⭐️⭐️⭐️
   useEffect(() => {
     if (selectedMemoId === null && memos.length > 0) {
       const latestMemo = memos.reduce((prev, current) =>
@@ -102,7 +88,6 @@ export default function HomePage() {
     }
   }, [memos, selectedMemoId]);
 
-  // ⭐️⭐️⭐️ 다크 모드 클래스 적용 ⭐️⭐️⭐️
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add('dark');
@@ -111,7 +96,6 @@ export default function HomePage() {
     }
   }, [isDarkMode]);
 
-  // 메모 저장 로직 (수동 저장 버튼에 연결)
   const saveCurrentMemo = useCallback(() => {
     if (!currentMemoContent.trim() && !currentMemoTitle.trim()) {
       showToast('저장할 내용이나 제목이 없습니다.', 1500);
@@ -128,16 +112,13 @@ export default function HomePage() {
       );
       showToast('메모가 업데이트되었습니다!', 1500);
     } else {
-      let newTitle = currentMemoTitle.trim() || getFormattedDate();
+      let newTitleBase = "새 메모";
+      let newTitle = currentMemoTitle.trim() || newTitleBase;
       let counter = 0;
       while (memos.some(memo => memo.title === newTitle)) {
         counter++;
-        if (newTitle.startsWith(getFormattedDate())) {
-          newTitle = `${getFormattedDate()} (${counter})`;
-        } else {
-          const baseTitle = newTitle.replace(/\s*\(\d+\)$/, '');
-          newTitle = `${baseTitle} (${counter})`;
-        }
+        const baseTitle = currentMemoTitle.trim().replace(/\s*\(\d+\)$/, '') || newTitleBase;
+        newTitle = `${baseTitle} (${counter})`;
       }
 
       const newMemo = {
@@ -153,25 +134,22 @@ export default function HomePage() {
     }
   }, [selectedMemoId, currentMemoContent, currentMemoTitle, memos, setMemos, showToast]);
 
-  // 메모 선택 핸들러
   const handleSelectMemo = (id) => {
     setSelectedMemoId(id);
   };
 
-  // 메모 개별 삭제 핸들러 (모달 열기)
   const handleDeleteMemo = (id) => {
     setMemoToDeleteId(id);
     setIsModalOpen(true);
   };
 
-  // 모달에서 개별 삭제 확정 시 실행될 함수
   const confirmDelete = () => {
     setMemos(prevMemos => {
       const updatedMemos = prevMemos.filter(memo => memo.id !== memoToDeleteId);
       if (selectedMemoId === memoToDeleteId) {
         setSelectedMemoId(null);
         setCurrentMemoContent('');
-        setCurrentMemoTitle(getFormattedDate());
+        setCurrentMemoTitle("새 메모");
       }
       return updatedMemos;
     });
@@ -181,13 +159,11 @@ export default function HomePage() {
     showToast('메모가 삭제되었습니다.', 1500);
   };
 
-  // 모달에서 개별 삭제 취소 시 실행될 함수
   const cancelDelete = () => {
     setIsModalOpen(false);
     setMemoToDeleteId(null);
   };
 
-  // ⭐️⭐️⭐️ 전체 메모 삭제 핸들러 (모달 열기) ⭐️⭐️⭐️
   const handleDeleteAllMemos = useCallback(() => {
     if (memos.length === 0) {
       showToast('삭제할 메모가 없습니다.', 1500);
@@ -196,22 +172,19 @@ export default function HomePage() {
     setIsConfirmAllModalOpen(true);
   }, [memos, showToast]);
 
-  // ⭐️⭐️⭐️ 모달에서 전체 삭제 확정 시 실행될 함수 ⭐️⭐️⭐️
   const confirmDeleteAll = useCallback(() => {
-    setMemos([]); // 모든 메모 삭제
-    setSelectedMemoId(null); // 선택된 메모 초기화
-    setCurrentMemoContent(''); // 현재 내용 초기화
-    setCurrentMemoTitle(getFormattedDate()); // 현재 제목 초기화
-    setIsConfirmAllModalOpen(false); // 모달 닫기
+    setMemos([]);
+    setSelectedMemoId(null);
+    setCurrentMemoContent('');
+    setCurrentMemoTitle("새 메모");
+    setIsConfirmAllModalOpen(false);
     showToast('모든 메모가 삭제되었습니다!', 1500);
   }, [setMemos, showToast]);
 
-  // ⭐️⭐️⭐️ 모달에서 전체 삭제 취소 시 실행될 함수 ⭐️⭐️⭐️
   const cancelDeleteAll = useCallback(() => {
     setIsConfirmAllModalOpen(false);
   }, []);
 
-  // 메모 제목 업데이트 핸들러
   const handleUpdateMemoTitle = (id, newTitle) => {
     let finalTitle = newTitle;
     let counter = 0;
@@ -231,7 +204,6 @@ export default function HomePage() {
     showToast('메모 제목이 업데이트되었습니다.', 1000);
   };
 
-  // ⭐️⭐️⭐️ 메모 전체를 CSV로 내보내는 함수 ⭐️⭐️⭐️
   const handleExportMemosToCsv = useCallback(() => {
     if (memos.length === 0) {
       showToast('내보낼 메모가 없습니다.', 1500);
@@ -281,7 +253,6 @@ export default function HomePage() {
     showToast('메모가 CSV 파일로 내보내졌습니다!', 1500);
   }, [memos, showToast]);
 
-  // ⭐️⭐️⭐️ CSV 파일을 읽어 메모를 가져오는 함수 ⭐️⭐️⭐️
   const handleImportMemosFromCsv = useCallback((file) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -339,12 +310,10 @@ export default function HomePage() {
     reader.readAsText(file, 'UTF-8');
   }, [memos, setMemos, showToast]);
 
-  // ⭐️⭐️⭐️ 다크 모드 토글 함수 ⭐️⭐️⭐️
   const handleToggleDarkMode = useCallback(() => {
     setIsDarkMode(prevMode => !prevMode);
   }, [setIsDarkMode]);
 
-  // ⭐️⭐️⭐️ MemoList에 전달할 필터링된 메모 목록 ⭐️⭐️⭐️
   const filteredMemos = memos.filter(memo =>
     memo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     memo.content.toLowerCase().includes(searchQuery.toLowerCase())
@@ -381,19 +350,17 @@ export default function HomePage() {
           onNewMemoClick={handleNewMemo}
         />
       </div>
-      {/* 개별 삭제 확인 모달 */}
       <ConfirmModal
         isOpen={isModalOpen}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
         message="정말로 이 메모를 삭제하시겠습니까?"
       />
-      {/* ⭐️⭐️⭐️ 전체 삭제 확인 모달 ⭐️⭐️⭐️ */}
       <ConfirmModal
         isOpen={isConfirmAllModalOpen}
         onConfirm={confirmDeleteAll}
         onCancel={cancelDeleteAll}
-        message="정말로 모든 메모를 삭제하시겠습니까?"
+        message="정말로 모든 메모를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!"
       />
       <ToastMessage
         message={toast.message}
