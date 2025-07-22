@@ -1,151 +1,135 @@
-# 🗄️ Memorial Cabinet
+# Memorial Cabinet
 
-A memorial cabinet for writing and managing your memories and notes in the browser.
+## 프로젝트 목표
 
----
+**Memorial Cabinet**은 누구나 쉽게 사용할 수 있는 웹 기반 메모장 & 공유 캐비넷 서비스입니다. 개인의 브라우저(로컬)에서 빠르게 메모를 작성/관리할 수 있고, 필요시 "캐비넷"이라는 공유 공간을 만들어 여러 사람이 협업하거나, 여러 기기에서 동일한 메모를 안전하게 관리할 수 있습니다.
 
-(아래의 모든 '브라우저 메모장' → 'Memorial Cabinet'으로, 설명도 영어로 자연스럽게 변경)
-
-<details>
-<summary>편집 모드</summary>
-
-![image](https://github.com/user-attachments/assets/f75e6cdf-fe92-47ef-ba51-bd0188af633f)
-
-</details>
-
-<details>
-<summary>마크다운 미리보기</summary>
-
-![image](https://github.com/user-attachments/assets/ec7d77b0-9ca3-4777-bb60-18c058304675)
-
-</details>
-
-<details>
-<summary>CSV 내보내기</summary>
-
-![내보화면 캡처 2025-06-26 152132](https://github.com/user-attachments/assets/e57177e0-9989-4156-93f9-b692794927df)
-
-![화면 캡처 2025-06-26 151717](https://github.com/user-attachments/assets/b0ca12f7-fadc-4804-854d-e3315059d820)
-
-</details>
-
-<details>
-<summary>CSV 가져오기</summary>
-
-![성공화면 캡처 2025-06-26 152118](https://github.com/user-attachments/assets/0646dd3d-3992-4001-89a5-20470e1af55c)
-
-</details>
-
-<details>
-<summary>메모 검색</summary>
-
-![image](https://github.com/user-attachments/assets/087969ca-41af-4a8e-94d8-ffbd19ce6ea8)
-
-</details>
-
-<details>
-<summary>전체삭제 클릭 시</summary>
-
-![image](https://github.com/user-attachments/assets/3b4af805-c9e9-4b34-ae11-7e50552bb308)
-
-</details>
-
-## ✨ 주요 기능
-
-### 메모 생성 및 관리
-
-- **새 메모 생성**: "새 메모" 버튼 클릭 시 오늘의 날짜를 기본 제목으로 하는 빈 메모가 즉시 생성되며 목록에 추가되고 에디터에 로드됩니다. 동일한 날짜 제목이 이미 존재할 경우, 자동으로 (1), (2)와 같은 숫자가 붙어 **고유한 제목**이 생성됩니다.
-- **메모 수정**: 사용자는 제목과 내용을 자유롭게 수정할 수 있습니다.
-- **수동 저장**: 자동 저장 대신, "메모 저장" 버튼을 클릭하여 현재 편집 중인 메모를 명시적으로 저장합니다.
-- **로컬 스토리지 저장**: 모든 메모 데이터는 브라우저의 로컬 스토리지에 저장되어 브라우저를 닫았다 다시 열어도 **데이터가 유지**됩니다.
-- **메모 열람 및 전환**: 메모 목록에서 원하는 메모를 클릭하면 해당 내용이 에디터에 로드되어 열람 및 수정할 수 있습니다.
-- **메모 삭제**: 각 메모 옆의 삭제 버튼을 통해 메모를 삭제할 수 있으며, 삭제 전 확인 모달을 제공하여 실수로 인한 삭제를 방지합니다. 또한, "전체 삭제" 기능을 통해 모든 메모를 한 번에 삭제할 수 있습니다.
-- **제목 수정**: 메모 목록에서 메모 제목을 더블 클릭하여 바로 수정할 수 있습니다.
-
-### 마크다운(Markdown) 지원
-
-- 메모 에디터에서 **마크다운 문법**을 사용하여 글을 작성할 수 있습니다.
-- "미리보기" 토글 버튼을 통해 작성 중인 마크다운 텍스트가 어떻게 렌더링될지 실시간으로 확인할 수 있습니다.
-
-### 메모 검색
-
-- 메모 목록 상단의 검색창에 키워드를 입력하여 제목 또는 내용에 해당 키워드가 포함된 메모를 빠르게 찾아 필터링할 수 있습니다.
-
-### 데이터 백업 및 가져오기
-
-- **데이터 백업 (CSV 내보내기)**: 현재 저장된 모든 메모 데이터를 CSV 파일로 내보낼 수 있습니다. 한글 깨짐 방지 및 필드 이스케이프 처리가 포함됩니다.
-- **데이터 가져오기 (CSV 가져오기)**: CSV 파일을 불러와 기존 메모 목록에 새로운 메모로 추가할 수 있습니다. (기존 ID 및 제목 충돌 방지 로직 포함)
-
-### 기타 사용자 편의 기능
-
-- **북마크 추가 안내**: 브라우저에 메모장 페이지를 쉽게 북마크할 수 있도록 단축키(`Ctrl+D` / `Cmd+D`)를 안내하는 버튼을 제공합니다.
-- **사용자 친화적 알림**: 모든 중요한 작업(저장, 삭제, 생성, 내보내기, 가져오기 등)에 대해 화면 중앙에 짧게 표시되는 토스트 메시지를 통해 사용자에게 피드백을 제공합니다.
-- **반응형 디자인**: **Tailwind CSS**를 활용하여 다양한 화면 크기에서 최적화된 사용자 경험을 제공합니다.
+- **로컬 모드**: 내 브라우저에만 저장, 빠르고 간편하게 메모 관리
+- **캐비넷 모드**: 이름(최대 6자)과 숫자 4자리 비밀번호(선택)를 입력해 DB에 안전하게 메모 저장/공유
+- **QR코드**: 모바일 등에서 바로 접속 가능
+- **간단한 UX**: 초보자도 쉽게 사용할 수 있도록 직관적인 UI/가이드 제공
 
 ---
 
-## 🛠️ 사용된 기술 스택
+## 주요 기능
 
-- **Next.js 14**: React 프레임워크 (App Router)
-- **React**: UI 컴포넌트 개발
-- **Tailwind CSS**: CSS 프레임워크
-- **marked**: 마크다운을 HTML로 변환하기 위한 라이브러리
-- **uuid**: 고유 ID 생성을 위한 라이브러리 (v4)
+- **로컬스토리지 기반 메모 CRUD**
+- **캐비넷(공유 저장소) 생성/입장/보안**
+  - 이름(최대 6자) + 숫자 4자리 비밀번호(선택, 입력 시 4자리 필수)
+  - 비밀번호 미설정 시 누구나 접근 가능, 설정 시 비밀번호 필요
+  - 캐비넷마다 고유 ID(cuid) 부여, 일부만 노출
+- **DB 연동**: Prisma + PostgreSQL
+- **QR코드**: 각 캐비넷/사이트 접속용 QR코드 자동 생성
+- **반응형 UI/UX**: 모바일, 데스크탑 모두 최적화
+- **가이드/툴팁**: 좌상단 'i' 아이콘에 사용법 안내
+- **다크모드 지원**
 
 ---
 
-## 🚀 시작하기
+## 사용 스택
 
-### 전제 조건
+- **Next.js 15 (app router)**
+- **TypeScript**
+- **Prisma ORM**
+- **PostgreSQL**
+- **Tailwind CSS**
+- **qrcode.react** (QR코드 생성)
+- **Vercel** (배포)
 
-- Node.js (v18 이상 권장)
-- npm 또는 Yarn
+---
 
-### 설치
+## 프로젝트 구조
 
-1.  GitHub에서 프로젝트를 클론합니다:
-    ```bash
-    git clone [프로젝트_레포지토리_URL]
-    cd [프로젝트_폴더명]
-    ```
-2.  의존성 패키지를 설치합니다:
-    ```bash
-    npm install
-    # 또는
-    yarn install
-    ```
-3.  `marked` 라이브러리가 필요합니다:
-    ```bash
-    npm install marked
-    # 또는
-    yarn add marked
-    ```
-
-### 개발 서버 실행
-
-```bash
-npm run dev
-# 또는
-yarn dev
+```
+memorial-cabinet/
+├── app/
+│   ├── page.tsx           # 메인 페이지(로컬/캐비넷 모드 UI)
+│   ├── layout.tsx         # 전체 레이아웃
+│   └── api/
+│       ├── cabinet/route.ts # 캐비넷 생성/입장 API
+│       └── memo/route.ts    # 메모 CRUD API
+├── components/
+│   ├── Header.tsx         # 상단 헤더/로고/가이드/캐비넷 정보
+│   ├── MemoList.tsx       # 메모 목록
+│   ├── MemoEditor.tsx     # 메모 작성/수정
+│   ├── CabinetModal.tsx   # 캐비넷 생성/입장 모달
+│   ├── ConfirmModal.tsx   # 삭제 등 확인 모달
+│   ├── ToastMessage.tsx   # 알림 메시지
+│   └── MarkdownPreview.tsx# 마크다운 미리보기
+├── hooks/
+│   └── useLocalStorage.ts # 로컬스토리지 커스텀 훅
+├── prisma/
+│   └── schema.prisma      # Prisma 스키마(Cabinet, Memo)
+├── public/                # 정적 파일/아이콘
+├── package.json           # 의존성/스크립트
+├── README.md              # 프로젝트 설명
+└── ...
 ```
 
-이제 `http://localhost:3000` 에서 메모장 앱을 확인할 수 있습니다.
+---
+
+## 핵심 구현 방법
+
+### 1. 로컬/캐비넷 모드 분기
+
+- **로컬 모드**: useLocalStorage 훅으로 브라우저에 메모 저장
+- **캐비넷 모드**: API 호출로 DB에 메모 저장/불러오기, 동기화
+- **모드 전환**: 헤더에서 "캐비넷 열기"/"나가기"로 전환
+
+### 2. 캐비넷 생성/입장
+
+- 이름(최대 6자)과 비밀번호(숫자 4자리, 선택) 입력
+- 비밀번호 미설정 시 누구나 접근 가능, 설정 시 비밀번호 필요
+- Prisma + PostgreSQL로 Cabinet, Memo 테이블 관리
+- cuid로 고유 캐비넷 ID 생성, 일부만 노출
+
+### 3. QR코드
+
+- qrcode.react로 각 캐비넷/사이트 접속용 QR코드 생성
+- 로컬 모드: 사이트 주소, 캐비넷 모드: 해당 캐비넷 고유 URL
+
+### 4. UX/가이드
+
+- 좌상단 'i' 아이콘에 마우스 오버 시 사용법 안내 툴팁
+- 모든 알림 메시지는 하단 중앙에 fade-in-up 애니메이션, 1.5초 고정
+- 모달 배경은 블러+투명 처리
 
 ---
 
-## ☁️ 배포
+## 배포/실행 방법
 
-이 프로젝트는 Next.js 기반으로 구축되었으므로, **Vercel에 쉽게 배포**할 수 있습니다. GitHub 리포지토리를 Vercel에 연결하면 자동으로 빌드 및 배포가 이루어집니다.
+### 1. 로컬 개발
+
+```bash
+npm install
+npx prisma generate
+npx prisma migrate dev --name init
+npm run dev
+```
+
+- `.env`에 `DATABASE_URL` 반드시 설정
+
+### 2. Vercel 배포
+
+- `DATABASE_URL` 환경변수 Vercel 대시보드에 등록
+- `package.json`에 `postinstall`/`build`에 `prisma generate` 포함
+- `qrcode.react` 등 모든 의존성 `dependencies`에 포함
 
 ---
 
-## 📝 사용 방법
+## 복구/재구현 가이드
 
-- **새 메모 생성**: 상단 바의 "+ 새 메모" 버튼을 클릭합니다. 목록에 새로운 빈 메모가 추가되고 편집기에 로드됩니다.
-- **메모 작성**: 편집기에서 제목과 내용을 작성합니다. 내용을 마크다운 문법으로 작성할 수 있으며, "미리보기" 버튼을 눌러 렌더링 결과를 확인할 수 있습니다.
-- **메모 저장**: 내용을 작성한 후 편집기 하단의 "메모 저장" 버튼을 클릭하여 변경 사항을 저장합니다.
-- **메모 열람**: 왼쪽 목록에서 원하는 메모의 제목을 클릭하여 편집기에 내용을 불러옵니다.
-- **메모 제목 수정**: 왼쪽 목록에서 메모 제목을 더블 클릭하면 편집 모드로 전환되어 제목을 수정할 수 있습니다.
-- **메모 삭제**: 왼쪽 목록에서 각 메모 옆의 휴지통 아이콘을 클릭하여 메모를 삭제합니다. 모든 메모를 삭제하려면 상단 바의 "전체 삭제" 버튼을 클릭합니다.
-- **메모 검색**: 왼쪽 목록 상단의 검색창에 키워드를 입력하여 원하는 메모를 필터링합니다.
-- **데이터 내보내기/가져오기**: 상단 바의 "메모 내보내기 (CSV)" 또는 "메모 가져오기 (CSV)" 버튼을 클릭하여 데이터를 백업하거나 복원할 수 있습니다.
+1. **DB 스키마**: `prisma/schema.prisma` 참고, Cabinet(이름, 비밀번호, cuid), Memo(내용, cabinetId)
+2. **API**: Next.js app router의 `app/api/cabinet/route.ts`, `app/api/memo/route.ts` 참고
+3. **로컬/DB 분기**: 메인 페이지에서 상태로 분기, useLocalStorage 훅 활용
+4. **UI/UX**: Tailwind CSS, 컴포넌트 구조 참고
+5. **QR코드**: qrcode.react 사용, 동적 import로 SSR 대응
+6. **알림/모달/가이드**: ToastMessage, ConfirmModal, Header의 GuideTooltip 참고
+
+---
+
+## 기타 참고
+
+- Prisma + Vercel 배포시 반드시 `prisma generate`가 빌드에 포함되어야 함
+- 모든 주요 기능은 README와 코드 구조만으로 복구 가능하도록 설계
+- 문의/이슈: [프로젝트 깃허브](https://github.com/rakaso598/memorial-cabinet)
