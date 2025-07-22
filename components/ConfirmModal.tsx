@@ -17,7 +17,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null; // 모달이 닫혀있으면 아무것도 렌더링하지 않음
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
         <p className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6 text-center">
           {message}
