@@ -22,8 +22,12 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
       setError("캐비넷 이름을 입력하세요.");
       return;
     }
-    if (cabinetName.length > 10) {
-      setError("캐비넷 이름은 최대 10자까지 입력할 수 있습니다.");
+    if (cabinetName.length > 6) {
+      setError("캐비넷 이름은 최대 6자까지 입력할 수 있습니다.");
+      return;
+    }
+    if (!/^[0-9]{4}$/.test(password)) {
+      setError("비밀번호는 숫자 4자리로 입력해야 합니다.");
       return;
     }
     setError("");
@@ -46,25 +50,28 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
           캐비넷 열기/생성
         </h2>
         <label className="block mb-2 text-gray-700 dark:text-gray-200 text-sm font-semibold">
-          캐비넷 이름 (최대 10자)
+          캐비넷 이름 (최대 6자)
         </label>
         <input
           type="text"
-          maxLength={10}
+          maxLength={6}
           value={cabinetName}
           onChange={(e) => setCabinetName(e.target.value)}
           className="w-full mb-4 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
-          placeholder="예: mycabinet"
+          placeholder="예: mycab"
         />
         <label className="block mb-2 text-gray-700 dark:text-gray-200 text-sm font-semibold">
-          비밀번호 (선택)
+          비밀번호 (숫자 4자리, 필수)
         </label>
         <input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          maxLength={4}
+          pattern="[0-9]{4}"
+          inputMode="numeric"
+          onChange={(e) => setPassword(e.target.value.replace(/[^0-9]/g, ""))}
           className="w-full mb-4 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
-          placeholder="비밀번호(선택)"
+          placeholder="숫자 4자리"
         />
         {error && (
           <div className="text-red-500 text-xs mb-2 text-center">{error}</div>
@@ -84,9 +91,9 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
           </button>
         </div>
         <div className="text-xs text-gray-500 dark:text-gray-300 mt-4 text-center">
-          캐비넷 이름만 입력하면 누구나 접근 가능한 공간이 생성됩니다.
+          캐비넷 이름은 최대 6자, 비밀번호는 숫자 4자리만 입력할 수 있습니다.
           <br />
-          비밀번호를 설정하면 본인만 접근할 수 있습니다.
+          비밀번호는 반드시 입력해야 하며, 분실 시 복구가 불가합니다.
         </div>
       </div>
     </div>

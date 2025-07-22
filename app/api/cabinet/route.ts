@@ -7,9 +7,15 @@ const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   const { name, password } = await req.json();
-  if (!name || typeof name !== "string" || name.length > 10) {
+  if (!name || typeof name !== "string" || name.length > 6) {
     return NextResponse.json(
-      { error: "잘못된 캐비넷 이름입니다." },
+      { error: "잘못된 캐비넷 이름입니다. (최대 6자)" },
+      { status: 400 }
+    );
+  }
+  if (!/^[0-9]{4}$/.test(password)) {
+    return NextResponse.json(
+      { error: "비밀번호는 숫자 4자리여야 합니다." },
       { status: 400 }
     );
   }
