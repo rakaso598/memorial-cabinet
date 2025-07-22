@@ -39,7 +39,11 @@ const getFormattedDate = () => {
 };
 
 export default function HomePage() {
-  const [memos, setMemos] = useLocalStorage<Memo[]>("my-browser-memos", []);
+  const [localMemos, setLocalMemos] = useLocalStorage<Memo[]>(
+    "my-browser-memos",
+    []
+  );
+  const [memos, setMemos] = useState<Memo[]>(localMemos);
   const [selectedMemoId, setSelectedMemoId] = useState<string | null>(null);
   const [currentMemoContent, setCurrentMemoContent] = useState<string>("");
   const [currentMemoTitle, setCurrentMemoTitle] = useState<string>("");
@@ -106,6 +110,18 @@ export default function HomePage() {
           }
         })
         .finally(() => setIsCabinetDataLoading(false));
+    } else {
+      // 캐비넷에서 나가면 로컬스토리지 데이터 복원
+      setMemos(localMemos);
+      if (localMemos.length > 0) {
+        setSelectedMemoId(localMemos[0].id);
+        setCurrentMemoContent(localMemos[0].content);
+        setCurrentMemoTitle(localMemos[0].title);
+      } else {
+        setSelectedMemoId(null);
+        setCurrentMemoContent("");
+        setCurrentMemoTitle("새 메모");
+      }
     }
   }, [cabinetInfo]);
 
@@ -536,10 +552,6 @@ export default function HomePage() {
         }
         onExitCabinet={() => {
           setCabinetInfo(null);
-          setMemos([]);
-          setSelectedMemoId(null);
-          setCurrentMemoContent("");
-          setCurrentMemoTitle("새 메모");
           showToast("로컬 모드로 전환되었습니다.");
         }}
       />
