@@ -9,6 +9,12 @@ import MemoEditor from "../components/MemoEditor";
 import Header from "../components/Header";
 import ConfirmModal from "../components/ConfirmModal";
 import ToastMessage from "../components/ToastMessage";
+import CabinetModal from "../components/CabinetModal";
+import dynamic from "next/dynamic";
+const QRCode = dynamic(
+  () => import("qrcode.react").then((mod) => mod.QRCodeCanvas),
+  { ssr: false }
+);
 
 interface Memo {
   id: string;
@@ -64,7 +70,43 @@ export default function HomePage() {
     setToast({ message, duration, isVisible: true });
   }, []);
 
-  const handleNewMemo = useCallback(() => {
+  const [isCabinetModalOpen, setIsCabinetModalOpen] = useState<boolean>(false); // 캐비넷 모달 상태
+  const [cabinetInfo, setCabinetInfo] = useState<null | {
+    id: string;
+    name: string;
+    hasPassword: boolean;
+  }>(null);
+
+  // 캐비넷 모드일 때 DB에서 메모 불러오기
+  useEffect(() => {
+    if (cabinetInfo) {
+      // DB에서 메모 불러오기
+      fetch(`/api/memo?cabinetId=${cabinetInfo.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          // DB 메모는 createdAt/updatedAt이 string이므로 number로 변환
+          setMemos(
+            data.map((m: any) => ({
+              ...m,
+              createdAt: new Date(m.createdAt).getTime(),
+              updatedAt: new Date(m.updatedAt).getTime(),
+            }))
+          );
+          if (data.length > 0) {
+            setSelectedMemoId(data[0].id);
+            setCurrentMemoContent(data[0].content);
+            setCurrentMemoTitle(data[0].title);
+          } else {
+            setSelectedMemoId(null);
+            setCurrentMemoContent("");
+            setCurrentMemoTitle("새 메모");
+          }
+        });
+    }
+  }, [cabinetInfo]);
+
+  // 메모 추가/수정/삭제 분기
+  const handleNewMemo = useCallback(async () => {
     let newTitleBase = "새 메모";
     let newTitle = newTitleBase;
     let counter = 0;
@@ -72,22 +114,50 @@ export default function HomePage() {
       counter++;
       newTitle = `${newTitleBase} (${counter})`;
     }
-
-    const newMemo: Memo = {
-      id: uuidv4(),
-      title: newTitle,
-      content: "",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-
-    setMemos((prevMemos: Memo[]) => [newMemo, ...prevMemos]);
-    setSelectedMemoId(newMemo.id);
-    setCurrentMemoContent(newMemo.content);
-    setCurrentMemoTitle(newMemo.title);
-
-    showToast("새 메모가 리스트에 추가되었습니다.", 1000); // 1초로 변경
-  }, [memos, setMemos, showToast]);
+    if (cabinetInfo) {
+      // DB 저장
+      const res = await fetch("/api/memo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cabinetId: cabinetInfo.id,
+          title: newTitle,
+          content: "",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMemos((prev) => [
+          {
+            ...data,
+            createdAt: new Date(data.createdAt).getTime(),
+            updatedAt: new Date(data.updatedAt).getTime(),
+          },
+          ...prev,
+        ]);
+        setSelectedMemoId(data.id);
+        setCurrentMemoContent("");
+        setCurrentMemoTitle(newTitle);
+        showToast("새 메모가 리스트에 추가되었습니다.", 1000);
+      } else {
+        showToast(data.error || "메모 생성 실패", 2000);
+      }
+    } else {
+      // 로컬 저장
+      const newMemo: Memo = {
+        id: uuidv4(),
+        title: newTitle,
+        content: "",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      setMemos((prevMemos: Memo[]) => [newMemo, ...prevMemos]);
+      setSelectedMemoId(newMemo.id);
+      setCurrentMemoContent(newMemo.content);
+      setCurrentMemoTitle(newMemo.title);
+      showToast("새 메모가 리스트에 추가되었습니다.", 1000);
+    }
+  }, [memos, setMemos, showToast, cabinetInfo]);
 
   useEffect(() => {
     const memo = memos.find((m: Memo) => m.id === selectedMemoId);
@@ -119,47 +189,60 @@ export default function HomePage() {
     }
   }, [isDarkMode]);
 
-  const saveCurrentMemo = useCallback(() => {
+  const saveCurrentMemo = useCallback(async () => {
     if (!currentMemoContent.trim() && !currentMemoTitle.trim()) {
-      showToast("저장할 내용이나 제목이 없습니다.", 1000); // 1초로 변경
+      showToast("저장할 내용이나 제목이 없습니다.", 1000);
       return;
     }
-
     if (selectedMemoId) {
-      setMemos((prevMemos: Memo[]) =>
-        prevMemos.map((memo: Memo) =>
-          memo.id === selectedMemoId
-            ? {
-                ...memo,
-                content: currentMemoContent,
-                title: currentMemoTitle,
-                updatedAt: Date.now(),
-              }
-            : memo
-        )
-      );
-      showToast("메모가 업데이트되었습니다!", 1000); // 1초로 변경
-    } else {
-      let newTitleBase = "새 메모";
-      let newTitle = currentMemoTitle.trim() || newTitleBase;
-      let counter = 0;
-      while (memos.some((memo: Memo) => memo.title === newTitle)) {
-        counter++;
-        const baseTitle =
-          currentMemoTitle.trim().replace(/\s*\(\d+\)$/, "") || newTitleBase;
-        newTitle = `${baseTitle} (${counter})`;
+      if (cabinetInfo) {
+        // DB 수정
+        const res = await fetch("/api/memo", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: selectedMemoId,
+            title: currentMemoTitle,
+            content: currentMemoContent,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setMemos((prev) =>
+            prev.map((memo) =>
+              memo.id === selectedMemoId
+                ? {
+                    ...memo,
+                    title: currentMemoTitle,
+                    content: currentMemoContent,
+                    updatedAt: new Date(data.updatedAt).getTime(),
+                  }
+                : memo
+            )
+          );
+          showToast("메모가 업데이트되었습니다!", 1000);
+        } else {
+          showToast(data.error || "메모 수정 실패", 2000);
+        }
+      } else {
+        // 로컬 수정
+        setMemos((prevMemos: Memo[]) =>
+          prevMemos.map((memo: Memo) =>
+            memo.id === selectedMemoId
+              ? {
+                  ...memo,
+                  content: currentMemoContent,
+                  title: currentMemoTitle,
+                  updatedAt: Date.now(),
+                }
+              : memo
+          )
+        );
+        showToast("메모가 업데이트되었습니다!", 1000);
       }
-
-      const newMemo: Memo = {
-        id: uuidv4(),
-        title: newTitle,
-        content: currentMemoContent,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      setMemos((prevMemos: Memo[]) => [newMemo, ...prevMemos]);
-      setSelectedMemoId(newMemo.id);
-      showToast("새 메모가 성공적으로 저장되었습니다!", 1000); // 1초로 변경
+    } else {
+      // 새 메모 저장
+      handleNewMemo();
     }
   }, [
     selectedMemoId,
@@ -168,33 +251,55 @@ export default function HomePage() {
     memos,
     setMemos,
     showToast,
+    cabinetInfo,
+    handleNewMemo,
   ]);
 
   const handleSelectMemo = (id: string) => {
     setSelectedMemoId(id);
   };
 
-  const handleDeleteMemo = (id: string) => {
+  const handleDeleteMemo = async (id: string) => {
     setMemoToDeleteId(id);
     setIsModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setMemos((prevMemos: Memo[]) => {
-      const updatedMemos = prevMemos.filter(
-        (memo: Memo) => memo.id !== memoToDeleteId
-      );
-      if (selectedMemoId === memoToDeleteId) {
-        setSelectedMemoId(null);
-        setCurrentMemoContent("");
-        setCurrentMemoTitle("새 메모");
+  const confirmDelete = async () => {
+    if (cabinetInfo) {
+      // DB 삭제
+      const res = await fetch("/api/memo", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: memoToDeleteId }),
+      });
+      if (res.ok) {
+        setMemos((prev) => prev.filter((memo) => memo.id !== memoToDeleteId));
+        if (selectedMemoId === memoToDeleteId) {
+          setSelectedMemoId(null);
+          setCurrentMemoContent("");
+          setCurrentMemoTitle("새 메모");
+        }
+        showToast("메모가 삭제되었습니다.", 1000);
+      } else {
+        showToast("메모 삭제 실패", 2000);
       }
-      return updatedMemos;
-    });
-
+    } else {
+      // 로컬 삭제
+      setMemos((prevMemos: Memo[]) => {
+        const updatedMemos = prevMemos.filter(
+          (memo: Memo) => memo.id !== memoToDeleteId
+        );
+        if (selectedMemoId === memoToDeleteId) {
+          setSelectedMemoId(null);
+          setCurrentMemoContent("");
+          setCurrentMemoTitle("새 메모");
+        }
+        return updatedMemos;
+      });
+      showToast("메모가 삭제되었습니다.", 1000);
+    }
     setIsModalOpen(false);
     setMemoToDeleteId(null);
-    showToast("메모가 삭제되었습니다.", 1000); // 1초로 변경
   };
 
   const cancelDelete = () => {
@@ -223,7 +328,7 @@ export default function HomePage() {
     setIsConfirmAllModalOpen(false);
   }, []);
 
-  const handleUpdateMemoTitle = (id: string, newTitle: string) => {
+  const handleUpdateMemoTitle = async (id: string, newTitle: string) => {
     let finalTitle = newTitle;
     let counter = 0;
     while (
@@ -232,18 +337,51 @@ export default function HomePage() {
       counter++;
       finalTitle = `${newTitle} (${counter})`;
     }
-
-    setMemos((prevMemos: Memo[]) =>
-      prevMemos.map((memo: Memo) =>
-        memo.id === id
-          ? { ...memo, title: finalTitle, updatedAt: Date.now() }
-          : memo
-      )
-    );
-    if (selectedMemoId === id) {
-      setCurrentMemoTitle(finalTitle);
+    if (cabinetInfo) {
+      // DB 수정
+      const res = await fetch("/api/memo", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          title: finalTitle,
+          content: memos.find((m) => m.id === id)?.content || "",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMemos((prev) =>
+          prev.map((memo) =>
+            memo.id === id
+              ? {
+                  ...memo,
+                  title: finalTitle,
+                  updatedAt: new Date(data.updatedAt).getTime(),
+                }
+              : memo
+          )
+        );
+        if (selectedMemoId === id) {
+          setCurrentMemoTitle(finalTitle);
+        }
+        showToast("메모 제목이 업데이트되었습니다.", 1000);
+      } else {
+        showToast(data.error || "제목 수정 실패", 2000);
+      }
+    } else {
+      // 로컬 수정
+      setMemos((prevMemos: Memo[]) =>
+        prevMemos.map((memo: Memo) =>
+          memo.id === id
+            ? { ...memo, title: finalTitle, updatedAt: Date.now() }
+            : memo
+        )
+      );
+      if (selectedMemoId === id) {
+        setCurrentMemoTitle(finalTitle);
+      }
+      showToast("메모 제목이 업데이트되었습니다.", 1000);
     }
-    showToast("메모 제목이 업데이트되었습니다.", 1000); // 1초로 변경
   };
 
   const handleExportMemosToCsv = useCallback(() => {
@@ -389,6 +527,7 @@ export default function HomePage() {
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleDarkMode}
         onDeleteAllMemos={handleDeleteAllMemos}
+        onOpenCabinetMenu={() => setIsCabinetModalOpen(true)}
       />
       <div className="flex flex-grow overflow-hidden">
         <MemoList
@@ -410,6 +549,34 @@ export default function HomePage() {
           onNewMemoClick={handleNewMemo}
         />
       </div>
+      <div className="fixed bottom-6 right-6 z-50">
+        {/* QR코드 표시 (캐비넷 모드: 해당 캐비넷 URL, 로컬 모드: 사이트 기본 주소) */}
+        <div className="w-28 h-28 bg-gray-200 dark:bg-gray-700 rounded-xl flex flex-col items-center justify-center shadow-lg border border-gray-300 dark:border-gray-600">
+          <span className="text-xs text-gray-500 dark:text-gray-300 mb-1">
+            QR 코드
+          </span>
+          {cabinetInfo ? (
+            <QRCode
+              value={
+                typeof window !== "undefined"
+                  ? `${window.location.origin}/?cabinet=${cabinetInfo.id}`
+                  : ""
+              }
+              size={80}
+            />
+          ) : (
+            <QRCode
+              value={
+                typeof window !== "undefined" ? window.location.origin : ""
+              }
+              size={80}
+            />
+          )}
+          <span className="text-[10px] text-gray-400 mt-1">
+            {cabinetInfo ? "이 캐비넷 공유" : "사이트 접속"}
+          </span>
+        </div>
+      </div>
       <ConfirmModal
         isOpen={isModalOpen}
         onConfirm={confirmDelete}
@@ -422,6 +589,60 @@ export default function HomePage() {
         onCancel={cancelDeleteAll}
         message="정말로 모든 메모를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!"
       />
+      <CabinetModal
+        isOpen={isCabinetModalOpen}
+        onConfirm={async (cabinetName, password) => {
+          // 캐비넷 입장/생성 API 호출
+          try {
+            const res = await fetch("/api/cabinet", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: cabinetName, password }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              showToast(data.error || "캐비넷 입장/생성 실패", 2000);
+              // 실패 시 모달 입력값 유지
+              return;
+            }
+            setCabinetInfo({
+              id: data.id,
+              name: data.name,
+              hasPassword: data.hasPassword,
+            });
+            showToast(
+              data.created
+                ? "새 캐비넷이 생성되었습니다. (공유 주의)"
+                : "캐비넷에 입장했습니다.",
+              1500
+            );
+            setIsCabinetModalOpen(false);
+          } catch (e) {
+            showToast("서버 오류: 캐비넷 입장/생성 실패", 2000);
+          }
+        }}
+        onCancel={() => setIsCabinetModalOpen(false)}
+      />
+      {/* 캐비넷 입장 상태 표시 */}
+      {cabinetInfo && (
+        <div className="fixed top-4 right-4 z-50 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-lg shadow-md flex items-center space-x-2">
+          <span className="font-bold">캐비넷:</span> {cabinetInfo.name}{" "}
+          <span className="ml-2 text-xs">(ID: {cabinetInfo.id})</span>
+          <button
+            onClick={() => {
+              setCabinetInfo(null);
+              setMemos([]);
+              setSelectedMemoId(null);
+              setCurrentMemoContent("");
+              setCurrentMemoTitle("새 메모");
+              showToast("로컬 모드로 전환되었습니다.", 1200);
+            }}
+            className="ml-3 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 font-bold py-1 px-3 rounded-lg text-xs transition duration-200"
+          >
+            나가기
+          </button>
+        </div>
+      )}
       <ToastMessage
         message={toast.message}
         duration={toast.duration}

@@ -9,6 +9,7 @@ interface HeaderProps {
   onDeleteAllMemos: () => void;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
+  onOpenCabinetMenu: () => void; // 추가
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -19,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({
   onDeleteAllMemos,
   isDarkMode,
   onToggleDarkMode,
+  onOpenCabinetMenu, // 추가
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,6 +91,13 @@ const Header: React.FC<HeaderProps> = ({
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md dark:bg-blue-700 dark:hover:bg-blue-800"
         >
           + 새 메모
+        </button>
+        {/* 캐비넷 열기 버튼 추가 */}
+        <button
+          onClick={onOpenCabinetMenu}
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md dark:bg-green-700 dark:hover:bg-green-800"
+        >
+          캐비넷 열기
         </button>
         {/* 다크 모드 토글 버튼 추가 */}
         {/* <button
