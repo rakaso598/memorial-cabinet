@@ -59,15 +59,15 @@ const Header: React.FC<HeaderProps> = ({
       {/* 왼쪽: 캐비넷 입장 시 캐비넷 정보, 아니면 로고+가이드 */}
       <div className="flex items-center space-x-2 min-w-0 relative">
         {cabinetInfo ? (
-          <>
+          <div className="flex items-center h-10">
             <span
-              className="font-bold truncate max-w-[120px]"
+              className="font-bold text-2xl truncate max-w-[120px]"
               title={cabinetInfo.name}
             >
               캐비넷: {cabinetInfo.name}
             </span>
             <span
-              className="ml-2 text-xs truncate max-w-[120px]"
+              className="ml-3 text-base truncate max-w-[120px]"
               title={cabinetInfo.id}
             >
               (ID: {cabinetInfo.id})
@@ -75,12 +75,12 @@ const Header: React.FC<HeaderProps> = ({
             {onExitCabinet && (
               <button
                 onClick={onExitCabinet}
-                className="ml-3 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 font-bold py-1 px-3 rounded-lg text-xs transition duration-200"
+                className="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 font-bold py-1.5 px-4 rounded-lg text-base transition duration-200"
               >
                 나가기
               </button>
             )}
-          </>
+          </div>
         ) : (
           <>
             <h1 className="text-2xl font-bold whitespace-nowrap">
