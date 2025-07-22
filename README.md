@@ -137,6 +137,74 @@ npm run dev
 
 ---
 
+## API 명세
+
+### 1. 캐비넷 생성/입장
+
+- **POST /api/cabinet**
+  - 요청: `{ name: string(최대 6자), password?: string(숫자 4자리, 선택) }`
+  - 응답: `{ created: boolean, id: string, name: string, hasPassword: boolean }`
+  - 에러: `{ error: string }`
+  - 비밀번호 미설정 시 누구나 접근 가능, 설정 시 비밀번호 필요
+
+### 2. 캐비넷 정보 조회
+
+- **GET /api/cabinet?name=캐비넷이름**
+  - 응답: `{ id: string, name: string, hasPassword: boolean }`
+  - 에러: `{ error: string }`
+
+### 3. 메모 목록 조회
+
+- **GET /api/memo?cabinetId=캐비넷ID**
+  - 응답: `[ { id, title, content, createdAt, updatedAt, cabinetId } ]`
+  - 에러: `{ error: string }`
+
+### 4. 메모 생성
+
+- **POST /api/memo**
+  - 요청: `{ cabinetId: string, title: string, content: string }`
+  - 응답: `{ id, title, content, createdAt, updatedAt, cabinetId }`
+  - 에러: `{ error: string }`
+
+### 5. 메모 수정
+
+- **PUT /api/memo**
+  - 요청: `{ id: string, title: string, content: string }`
+  - 응답: `{ id, title, content, createdAt, updatedAt, cabinetId }`
+  - 에러: `{ error: string }`
+
+### 6. 메모 삭제
+
+- **DELETE /api/memo**
+  - 요청: `{ id: string }`
+  - 응답: `{ ok: true }`
+  - 에러: `{ error: string }`
+
+---
+
+## ERD (Entity Relationship Diagram)
+
+```mermaid
+erDiagram
+  Cabinet {
+    string id PK "cuid"
+    string name "최대 6자, unique"
+    string? password "bcrypt 해시, null 가능"
+    datetime createdAt
+  }
+  Memo {
+    string id PK "cuid"
+    string title
+    string content
+    datetime createdAt
+    datetime updatedAt
+    string cabinetId FK
+  }
+  Cabinet ||--o{ Memo : "has many"
+```
+
+---
+
 ## 기타 참고
 
 - Prisma + Vercel 배포시 반드시 `prisma generate`가 빌드에 포함되어야 함
