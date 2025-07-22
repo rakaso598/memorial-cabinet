@@ -1,6 +1,6 @@
 # ✨ [Memorial Cabinet](https://memorial-cabinet.vercel.app)
 
-<img width="1262" height="577" alt="image" src="https://github.com/user-attachments/assets/293afe5c-6665-477e-8b53-a3f2fa0cce4c" />
+<img width="1392" height="637" alt="image" src="https://github.com/user-attachments/assets/e917ba00-a00a-4b64-bab1-ce710c4ed0b4" />
 
 ## 프로젝트 목표
 
