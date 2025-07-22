@@ -545,7 +545,7 @@ export default function HomePage() {
       />
       <div className="flex flex-grow overflow-hidden">
         {isCabinetDataLoading ? (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-40">
             <span className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
           </div>
         ) : (

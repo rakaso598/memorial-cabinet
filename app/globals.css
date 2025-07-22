@@ -23,23 +23,12 @@
   }
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f3f4f6; /* Light mode default background */
-  color: #1f2937; /* Light mode default text */
-}
-
-/* Dark mode styles */
-body.dark {
-  background-color: #1a202c; /* Dark mode background */
-  color: #e2e8f0; /* Dark mode text */
-}
-
-html, body, #__next {
+body,
+html,
+#__next {
   height: 100%;
+  background-color: #1a202c !important;
+  color: #e2e8f0 !important;
 }
 
 /* ⭐️ 토스트 메시지 애니메이션 (기존) ⭐️ */
@@ -97,7 +86,8 @@ body.dark .markdown-body h2 {
   line-height: 1.6;
 }
 
-.markdown-body ul, .markdown-body ol {
+.markdown-body ul,
+.markdown-body ol {
   margin-left: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -114,7 +104,8 @@ body.dark .markdown-body h2 {
   background-color: #e2e8f0; /* Light mode */
   padding: 0.2em 0.4em;
   border-radius: 0.25rem;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
+    monospace;
 }
 
 body.dark .markdown-body code {
