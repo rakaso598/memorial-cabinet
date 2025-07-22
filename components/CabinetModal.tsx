@@ -4,12 +4,14 @@ interface CabinetModalProps {
   isOpen: boolean;
   onConfirm: (cabinetName: string, password: string) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 const CabinetModal: React.FC<CabinetModalProps> = ({
   isOpen,
   onConfirm,
   onCancel,
+  isLoading,
 }) => {
   const [cabinetName, setCabinetName] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +19,7 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!cabinetName.trim()) {
       setError("캐비넷 이름을 입력하세요.");
       return;
@@ -31,7 +33,7 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
       return;
     }
     setError("");
-    onConfirm(cabinetName.trim(), password);
+    await onConfirm(cabinetName.trim(), password);
     setCabinetName("");
     setPassword("");
   };
@@ -85,8 +87,12 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 dark:bg-green-700 dark:hover:bg-green-800"
+            disabled={isLoading}
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 dark:bg-green-700 dark:hover:bg-green-800 flex items-center justify-center disabled:opacity-60"
           >
+            {isLoading ? (
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+            ) : null}
             확인
           </button>
         </div>

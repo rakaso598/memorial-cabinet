@@ -10,6 +10,7 @@ interface MemoEditorProps {
   onSaveMemo: () => void;
   isListEmpty: boolean;
   onNewMemoClick: () => void;
+  isSaving?: boolean;
 }
 
 const MemoEditor: React.FC<MemoEditorProps> = ({
@@ -20,6 +21,7 @@ const MemoEditor: React.FC<MemoEditorProps> = ({
   onSaveMemo,
   isListEmpty,
   onNewMemoClick,
+  isSaving,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
@@ -78,8 +80,12 @@ const MemoEditor: React.FC<MemoEditorProps> = ({
 
       <button
         onClick={onSaveMemo}
-        className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md dark:bg-green-700 dark:hover:bg-green-800"
+        disabled={isSaving}
+        className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md dark:bg-green-700 dark:hover:bg-green-800 flex items-center justify-center disabled:opacity-60"
       >
+        {isSaving ? (
+          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+        ) : null}
         메모 저장
       </button>
     </main>

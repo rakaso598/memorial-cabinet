@@ -75,6 +75,8 @@ export default function HomePage() {
     name: string;
     hasPassword: boolean;
   }>(null);
+  const [isCabinetLoading, setIsCabinetLoading] = useState(false);
+  const [isMemoSaving, setIsMemoSaving] = useState(false);
 
   // 캐비넷 모드일 때 DB에서 메모 불러오기
   useEffect(() => {
@@ -553,9 +555,14 @@ export default function HomePage() {
           onContentChange={setCurrentMemoContent}
           title={currentMemoTitle}
           onTitleChange={setCurrentMemoTitle}
-          onSaveMemo={saveCurrentMemo}
+          onSaveMemo={async () => {
+            setIsMemoSaving(true);
+            await saveCurrentMemo();
+            setIsMemoSaving(false);
+          }}
           isListEmpty={memos.length === 0}
           onNewMemoClick={handleNewMemo}
+          isSaving={isMemoSaving}
         />
       </div>
       <div className="fixed bottom-6 right-6 z-50">
@@ -595,8 +602,9 @@ export default function HomePage() {
       <CabinetModal
         isOpen={isCabinetModalOpen}
         onConfirm={async (cabinetName, password) => {
-          // 캐비넷 입장/생성 API 호출
+          setIsCabinetLoading(true);
           try {
+            // 캐비넷 입장/생성 API 호출
             const res = await fetch("/api/cabinet", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -605,7 +613,6 @@ export default function HomePage() {
             const data = await res.json();
             if (!res.ok) {
               showToast(data.error || "캐비넷 입장/생성 실패");
-              // 실패 시 모달 입력값 유지
               return;
             }
             setCabinetInfo({
@@ -621,9 +628,12 @@ export default function HomePage() {
             setIsCabinetModalOpen(false);
           } catch (e) {
             showToast("서버 오류: 캐비넷 입장/생성 실패");
+          } finally {
+            setIsCabinetLoading(false);
           }
         }}
         onCancel={() => setIsCabinetModalOpen(false)}
+        isLoading={isCabinetLoading}
       />
       <ToastMessage
         message={toast.message}
