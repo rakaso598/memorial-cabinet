@@ -595,7 +595,7 @@ export default function HomePage() {
           </>
         )}
       </div>
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 left-6 z-50">
         {/* QR코드 표시 (캐비넷 모드: 해당 캐비넷 URL, 로컬 모드: 사이트 기본 주소) */}
         <div className="w-28 h-28 bg-gray-200 dark:bg-gray-700 rounded-xl flex flex-col items-center justify-center shadow-lg border border-gray-300 dark:border-gray-600">
           {cabinetInfo ? (
