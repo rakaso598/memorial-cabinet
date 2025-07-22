@@ -65,9 +65,8 @@ export default function HomePage() {
     isVisible: false,
   });
 
-  const showToast = useCallback((message: string, duration: number = 1000) => {
-    // 기본 duration을 1000ms로 변경
-    setToast({ message, duration, isVisible: true });
+  const showToast = useCallback((message: string) => {
+    setToast({ message, duration: 1500, isVisible: true });
   }, []);
 
   const [isCabinetModalOpen, setIsCabinetModalOpen] = useState<boolean>(false); // 캐비넷 모달 상태
@@ -138,9 +137,9 @@ export default function HomePage() {
         setSelectedMemoId(data.id);
         setCurrentMemoContent("");
         setCurrentMemoTitle(newTitle);
-        showToast("새 메모가 리스트에 추가되었습니다.", 1000);
+        showToast("새 메모가 리스트에 추가되었습니다.");
       } else {
-        showToast(data.error || "메모 생성 실패", 2000);
+        showToast(data.error || "메모 생성 실패");
       }
     } else {
       // 로컬 저장
@@ -155,7 +154,7 @@ export default function HomePage() {
       setSelectedMemoId(newMemo.id);
       setCurrentMemoContent(newMemo.content);
       setCurrentMemoTitle(newMemo.title);
-      showToast("새 메모가 리스트에 추가되었습니다.", 1000);
+      showToast("새 메모가 리스트에 추가되었습니다.");
     }
   }, [memos, setMemos, showToast, cabinetInfo]);
 
@@ -191,7 +190,7 @@ export default function HomePage() {
 
   const saveCurrentMemo = useCallback(async () => {
     if (!currentMemoContent.trim() && !currentMemoTitle.trim()) {
-      showToast("저장할 내용이나 제목이 없습니다.", 1000);
+      showToast("저장할 내용이나 제목이 없습니다.");
       return;
     }
     if (selectedMemoId) {
@@ -220,9 +219,9 @@ export default function HomePage() {
                 : memo
             )
           );
-          showToast("메모가 업데이트되었습니다!", 1000);
+          showToast("메모가 업데이트되었습니다!");
         } else {
-          showToast(data.error || "메모 수정 실패", 2000);
+          showToast(data.error || "메모 수정 실패");
         }
       } else {
         // 로컬 수정
@@ -238,7 +237,7 @@ export default function HomePage() {
               : memo
           )
         );
-        showToast("메모가 업데이트되었습니다!", 1000);
+        showToast("메모가 업데이트되었습니다!");
       }
     } else {
       // 새 메모 저장
@@ -279,9 +278,9 @@ export default function HomePage() {
           setCurrentMemoContent("");
           setCurrentMemoTitle("새 메모");
         }
-        showToast("메모가 삭제되었습니다.", 1000);
+        showToast("메모가 삭제되었습니다.");
       } else {
-        showToast("메모 삭제 실패", 2000);
+        showToast("메모 삭제 실패");
       }
     } else {
       // 로컬 삭제
@@ -296,7 +295,7 @@ export default function HomePage() {
         }
         return updatedMemos;
       });
-      showToast("메모가 삭제되었습니다.", 1000);
+      showToast("메모가 삭제되었습니다.");
     }
     setIsModalOpen(false);
     setMemoToDeleteId(null);
@@ -309,7 +308,7 @@ export default function HomePage() {
 
   const handleDeleteAllMemos = useCallback(() => {
     if (memos.length === 0) {
-      showToast("삭제할 메모가 없습니다.", 1000); // 1초로 변경
+      showToast("삭제할 메모가 없습니다.");
       return;
     }
     setIsConfirmAllModalOpen(true);
@@ -321,7 +320,7 @@ export default function HomePage() {
     setCurrentMemoContent("");
     setCurrentMemoTitle("새 메모");
     setIsConfirmAllModalOpen(false);
-    showToast("모든 메모가 삭제되었습니다!", 1000); // 1초로 변경
+    showToast("모든 메모가 삭제되었습니다!");
   }, [setMemos, showToast]);
 
   const cancelDeleteAll = useCallback(() => {
@@ -364,9 +363,9 @@ export default function HomePage() {
         if (selectedMemoId === id) {
           setCurrentMemoTitle(finalTitle);
         }
-        showToast("메모 제목이 업데이트되었습니다.", 1000);
+        showToast("메모 제목이 업데이트되었습니다.");
       } else {
-        showToast(data.error || "제목 수정 실패", 2000);
+        showToast(data.error || "제목 수정 실패");
       }
     } else {
       // 로컬 수정
@@ -380,13 +379,13 @@ export default function HomePage() {
       if (selectedMemoId === id) {
         setCurrentMemoTitle(finalTitle);
       }
-      showToast("메모 제목이 업데이트되었습니다.", 1000);
+      showToast("메모 제목이 업데이트되었습니다.");
     }
   };
 
   const handleExportMemosToCsv = useCallback(() => {
     if (memos.length === 0) {
-      showToast("내보낼 메모가 없습니다.", 1000); // 1초로 변경
+      showToast("내보낼 메모가 없습니다.");
       return;
     }
 
@@ -433,7 +432,7 @@ export default function HomePage() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showToast("메모가 CSV 파일로 내보내졌습니다!", 1000); // 1초로 변경
+    showToast("메모가 CSV 파일로 내보내졌습니다!");
   }, [memos, showToast]);
 
   const handleImportMemosFromCsv = useCallback(
@@ -444,7 +443,7 @@ export default function HomePage() {
         const lines = csvText.split("\n").filter((line) => line.trim() !== "");
 
         if (lines.length <= 1) {
-          showToast("가져올 메모 내용이 없습니다.", 1000); // 1초로 변경
+          showToast("가져올 메모 내용이 없습니다.");
           return;
         }
 
@@ -489,16 +488,13 @@ export default function HomePage() {
 
         if (newMemos.length > 0) {
           setMemos((prevMemos: Memo[]) => [...newMemos, ...prevMemos]);
-          showToast(
-            `${newMemos.length}개의 메모를 성공적으로 가져왔습니다!`,
-            1000
-          ); // 1초로 변경
+          showToast(`${newMemos.length}개의 메모를 성공적으로 가져왔습니다!`);
         } else {
-          showToast("가져올 수 있는 유효한 메모가 없습니다.", 1000); // 1초로 변경
+          showToast("가져올 수 있는 유효한 메모가 없습니다.");
         }
       };
       reader.onerror = () => {
-        showToast("파일을 읽는 중 오류가 발생했습니다.", 1000); // 1초로 변경
+        showToast("파일을 읽는 중 오류가 발생했습니다.");
       };
       reader.readAsText(file, "UTF-8");
     },
@@ -528,6 +524,19 @@ export default function HomePage() {
         onToggleDarkMode={handleToggleDarkMode}
         onDeleteAllMemos={handleDeleteAllMemos}
         onOpenCabinetMenu={() => setIsCabinetModalOpen(true)}
+        cabinetInfo={
+          cabinetInfo
+            ? { ...cabinetInfo, id: cabinetInfo.id.slice(0, 6) }
+            : null
+        }
+        onExitCabinet={() => {
+          setCabinetInfo(null);
+          setMemos([]);
+          setSelectedMemoId(null);
+          setCurrentMemoContent("");
+          setCurrentMemoTitle("새 메모");
+          showToast("로컬 모드로 전환되었습니다.");
+        }}
       />
       <div className="flex flex-grow overflow-hidden">
         <MemoList
@@ -601,7 +610,7 @@ export default function HomePage() {
             });
             const data = await res.json();
             if (!res.ok) {
-              showToast(data.error || "캐비넷 입장/생성 실패", 2000);
+              showToast(data.error || "캐비넷 입장/생성 실패");
               // 실패 시 모달 입력값 유지
               return;
             }
@@ -613,36 +622,15 @@ export default function HomePage() {
             showToast(
               data.created
                 ? "새 캐비넷이 생성되었습니다. (공유 주의)"
-                : "캐비넷에 입장했습니다.",
-              1500
+                : "캐비넷에 입장했습니다."
             );
             setIsCabinetModalOpen(false);
           } catch (e) {
-            showToast("서버 오류: 캐비넷 입장/생성 실패", 2000);
+            showToast("서버 오류: 캐비넷 입장/생성 실패");
           }
         }}
         onCancel={() => setIsCabinetModalOpen(false)}
       />
-      {/* 캐비넷 입장 상태 표시 */}
-      {cabinetInfo && (
-        <div className="fixed top-4 right-4 z-50 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-lg shadow-md flex items-center space-x-2">
-          <span className="font-bold">캐비넷:</span> {cabinetInfo.name}{" "}
-          <span className="ml-2 text-xs">(ID: {cabinetInfo.id})</span>
-          <button
-            onClick={() => {
-              setCabinetInfo(null);
-              setMemos([]);
-              setSelectedMemoId(null);
-              setCurrentMemoContent("");
-              setCurrentMemoTitle("새 메모");
-              showToast("로컬 모드로 전환되었습니다.", 1200);
-            }}
-            className="ml-3 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 font-bold py-1 px-3 rounded-lg text-xs transition duration-200"
-          >
-            나가기
-          </button>
-        </div>
-      )}
       <ToastMessage
         message={toast.message}
         duration={toast.duration}

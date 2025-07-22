@@ -10,6 +10,8 @@ interface HeaderProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
   onOpenCabinetMenu: () => void; // 추가
+  cabinetInfo?: { id: string; name: string; hasPassword: boolean } | null;
+  onExitCabinet?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -21,6 +23,8 @@ const Header: React.FC<HeaderProps> = ({
   isDarkMode,
   onToggleDarkMode,
   onOpenCabinetMenu, // 추가
+  cabinetInfo,
+  onExitCabinet,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +55,37 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center dark:bg-gray-900">
-      <h1 className="text-2xl font-bold">Memorial Cabinet</h1>
+      {/* 왼쪽: 캐비넷 입장 시 캐비넷 정보, 아니면 로고 */}
+      <div className="flex items-center space-x-2 min-w-0">
+        {cabinetInfo ? (
+          <>
+            <span
+              className="font-bold truncate max-w-[120px]"
+              title={cabinetInfo.name}
+            >
+              캐비넷: {cabinetInfo.name}
+            </span>
+            <span
+              className="ml-2 text-xs truncate max-w-[120px]"
+              title={cabinetInfo.id}
+            >
+              (ID: {cabinetInfo.id})
+            </span>
+            {onExitCabinet && (
+              <button
+                onClick={onExitCabinet}
+                className="ml-3 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 font-bold py-1 px-3 rounded-lg text-xs transition duration-200"
+              >
+                나가기
+              </button>
+            )}
+          </>
+        ) : (
+          <h1 className="text-2xl font-bold whitespace-nowrap">
+            Memorial Cabinet
+          </h1>
+        )}
+      </div>
       <div className="flex space-x-4">
         {/* 파일 입력 필드 (숨김) */}
         <input
