@@ -184,25 +184,35 @@ npm run dev
 
 ---
 
-## ERD (Entity Relationship Diagram)
+## Prisma Schema
 
-```mermaid
-erDiagram
-  Cabinet {
-    string id PK "cuid"
-    string name "최대 6자, unique"
-    string? password "bcrypt 해시, null 가능"
-    datetime createdAt
-  }
-  Memo {
-    string id PK "cuid"
-    string title
-    string content
-    datetime createdAt
-    datetime updatedAt
-    string cabinetId FK
-  }
-  Cabinet ||--o{ Memo : "has many"
+```javascript
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cabinet {
+  id        String   @id @default(cuid())
+  name      String   @unique @db.VarChar(10)
+  password  String?  // 해시 저장, 없으면 null
+  createdAt DateTime @default(now())
+  memos     Memo[]
+}
+
+model Memo {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  cabinetId  String
+  cabinet    Cabinet  @relation(fields: [cabinetId], references: [id])
+} 
 ```
 
 ---
