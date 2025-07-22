@@ -1,9 +1,21 @@
 // src/components/ToastMessage.js
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 
-const ToastMessage = ({ message, duration, isVisible, onClose }) => {
+interface ToastMessageProps {
+  message: string;
+  duration: number;
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+const ToastMessage: React.FC<ToastMessageProps> = ({
+  message,
+  duration,
+  isVisible,
+  onClose,
+}) => {
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     if (isVisible) {
       // 메시지가 보이기 시작하면 타이머 설정
       timer = setTimeout(() => {

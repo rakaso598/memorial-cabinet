@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import React, { PropsWithChildren } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,11 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "브라우저 메모장",
-  description: "브라우저에서 메모를 작성하고 관리할 수 있는 애플리케이션입니다.",
+  title: "Memorial Cabinet",
+  description:
+    "A memorial cabinet for writing and managing your memories and notes in the browser.",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body

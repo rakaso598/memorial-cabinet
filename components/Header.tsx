@@ -1,14 +1,35 @@
-import React, { useRef } from 'react';
+import React, { useRef } from "react";
 
 // isDarkMode와 onToggleDarkMode prop을 추가합니다.
-const Header = ({ onNewMemo, onShowMessage, onExportMemos, onImportMemos, onDeleteAllMemos }) => {
-  const fileInputRef = useRef(null);
+interface HeaderProps {
+  onNewMemo: () => void;
+  onShowMessage: (message: string, duration?: number) => void;
+  onExportMemos: () => void;
+  onImportMemos: (file: File) => void;
+  onDeleteAllMemos: () => void;
+  isDarkMode: boolean;
+  onToggleDarkMode: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({
+  onNewMemo,
+  onShowMessage,
+  onExportMemos,
+  onImportMemos,
+  onDeleteAllMemos,
+  isDarkMode,
+  onToggleDarkMode,
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 북마크 추가 버튼 클릭 핸들러
   const handleAddBookmark = () => {
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const bookmarkKey = isMac ? 'Cmd + D' : 'Ctrl + D';
-    onShowMessage(`이 페이지를 북마크하려면 ${bookmarkKey} 키를 누르세요.`, 1500);
+    const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+    const bookmarkKey = isMac ? "Cmd + D" : "Ctrl + D";
+    onShowMessage(
+      `이 페이지를 북마크하려면 ${bookmarkKey} 키를 누르세요.`,
+      1500
+    );
   };
 
   // CSV 가져오기 버튼 클릭 시 파일 입력 트리거
@@ -17,18 +38,18 @@ const Header = ({ onNewMemo, onShowMessage, onExportMemos, onImportMemos, onDele
   };
 
   // 파일 선택 시 CSV 가져오기 함수 호출
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      onImportMemos(file);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      onImportMemos(files[0]);
       // 파일 선택 후 input의 value를 초기화하여 동일 파일 재선택 가능하게 함
-      event.target.value = null;
+      (event.target as HTMLInputElement).value = "";
     }
   };
 
   return (
-    <header className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center rounded-b-lg dark:bg-gray-900">
-      <h1 className="text-2xl font-bold">브라우저 메모장</h1>
+    <header className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center dark:bg-gray-900">
+      <h1 className="text-2xl font-bold">Memorial Cabinet</h1>
       <div className="flex space-x-4">
         {/* 파일 입력 필드 (숨김) */}
         <input

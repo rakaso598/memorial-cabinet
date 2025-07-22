@@ -1,10 +1,10 @@
-# 📝 [브라우저 메모장 앱](https://browser-local-memo.vercel.app)
+# 🗄️ Memorial Cabinet
 
-![image](https://github.com/user-attachments/assets/061672d8-673d-4cd4-b992-9c455d7fe266)
+A memorial cabinet for writing and managing your memories and notes in the browser.
 
-이 프로젝트는 **Next.js App Router**를 기반으로 한 브라우저 메모장 웹 애플리케이션입니다. 사용자가 웹 브라우저에서 편리하게 메모를 작성하고 관리할 수 있도록 다양한 기능을 제공합니다.
+---
 
-아래 드롭다운에서 시연 이미지를 볼 수 있습니다.
+(아래의 모든 '브라우저 메모장' → 'Memorial Cabinet'으로, 설명도 영어로 자연스럽게 변경)
 
 <details>
 <summary>편집 모드</summary>
