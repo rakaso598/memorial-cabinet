@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useState } from "react";
 
 // isDarkMode와 onToggleDarkMode prop을 추가합니다.
 interface HeaderProps {
@@ -55,8 +56,8 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center dark:bg-gray-900">
-      {/* 왼쪽: 캐비넷 입장 시 캐비넷 정보, 아니면 로고 */}
-      <div className="flex items-center space-x-2 min-w-0">
+      {/* 왼쪽: 캐비넷 입장 시 캐비넷 정보, 아니면 로고+가이드 */}
+      <div className="flex items-center space-x-2 min-w-0 relative">
         {cabinetInfo ? (
           <>
             <span
@@ -81,9 +82,13 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </>
         ) : (
-          <h1 className="text-2xl font-bold whitespace-nowrap">
-            Memorial Cabinet
-          </h1>
+          <>
+            <h1 className="text-2xl font-bold whitespace-nowrap">
+              Memorial Cabinet
+            </h1>
+            {/* 가이드 아이콘 */}
+            <GuideTooltip />
+          </>
         )}
       </div>
       <div className="flex space-x-4">
@@ -144,5 +149,37 @@ const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+
+// 컴포넌트 하단에 GuideTooltip 정의 추가
+function GuideTooltip() {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative ml-2 flex items-center">
+      <div
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/80 text-blue-700 font-bold cursor-pointer border border-blue-300 hover:bg-white shadow-sm transition"
+        title="사용법 안내"
+      >
+        i
+      </div>
+      {show && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg px-4 py-3 text-sm w-72 z-50 animate-fade-in-up">
+          <b>Memorial Cabinet 사용 가이드</b>
+          <ul className="mt-2 list-disc pl-4 space-y-1">
+            <li>로컬모드: 내 브라우저에만 저장, 빠르고 간편하게 메모 관리</li>
+            <li>
+              &quot;캐비넷 열기&quot;로 공유/협업 공간 생성 (최대 6자 이름, 숫자
+              4자리 비밀번호 필요)
+            </li>
+            <li>캐비넷 입장 시 해당 공간의 메모를 DB에 안전하게 저장/공유</li>
+            <li>QR코드로 모바일 등에서 바로 접속 가능</li>
+            <li>&quot;나가기&quot;로 다시 로컬모드로 전환</li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default Header;
