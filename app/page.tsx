@@ -255,7 +255,7 @@ export default function HomePage() {
         }
       } else {
         // 로컬 수정
-        setMemos((prevMemos: Memo[]) =>
+        updateLocalMemos((prevMemos: Memo[]) =>
           prevMemos.map((memo: Memo) =>
             memo.id === selectedMemoId
               ? {
@@ -278,8 +278,6 @@ export default function HomePage() {
     currentMemoContent,
     currentMemoTitle,
     memos,
-    setMemos,
-    showToast,
     cabinetInfo,
     handleNewMemo,
   ]);
