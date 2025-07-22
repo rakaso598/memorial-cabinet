@@ -125,6 +125,15 @@ export default function HomePage() {
     }
   }, [cabinetInfo]);
 
+  // 로컬 모드에서만 setMemos와 setLocalMemos를 동기화하는 헬퍼
+  const updateLocalMemos = (updater: (prev: Memo[]) => Memo[]) => {
+    setMemos((prev) => {
+      const next = updater(prev);
+      setLocalMemos(next);
+      return next;
+    });
+  };
+
   // 메모 추가/수정/삭제 분기
   const handleNewMemo = useCallback(async () => {
     let newTitleBase = "새 메모";
@@ -171,13 +180,13 @@ export default function HomePage() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      setMemos((prevMemos: Memo[]) => [newMemo, ...prevMemos]);
+      updateLocalMemos((prevMemos: Memo[]) => [newMemo, ...prevMemos]);
       setSelectedMemoId(newMemo.id);
       setCurrentMemoContent(newMemo.content);
       setCurrentMemoTitle(newMemo.title);
       showToast("새 메모가 리스트에 추가되었습니다.");
     }
-  }, [memos, setMemos, showToast, cabinetInfo]);
+  }, [memos, cabinetInfo]);
 
   useEffect(() => {
     const memo = memos.find((m: Memo) => m.id === selectedMemoId);
@@ -305,7 +314,7 @@ export default function HomePage() {
       }
     } else {
       // 로컬 삭제
-      setMemos((prevMemos: Memo[]) => {
+      updateLocalMemos((prevMemos: Memo[]) => {
         const updatedMemos = prevMemos.filter(
           (memo: Memo) => memo.id !== memoToDeleteId
         );
@@ -390,7 +399,7 @@ export default function HomePage() {
       }
     } else {
       // 로컬 수정
-      setMemos((prevMemos: Memo[]) =>
+      updateLocalMemos((prevMemos: Memo[]) =>
         prevMemos.map((memo: Memo) =>
           memo.id === id
             ? { ...memo, title: finalTitle, updatedAt: Date.now() }
