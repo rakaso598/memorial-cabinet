@@ -7,7 +7,8 @@
 - **로컬 모드**: 내 브라우저에만 저장, 빠르고 간편하게 메모 관리
 - **캐비넷 모드**: 이름(최대 6자)과 숫자 4자리 비밀번호(선택)를 입력해 DB에 안전하게 메모 저장/공유
 - **QR코드**: 모바일 등에서 바로 접속 가능
-- **간단한 UX**: 초보자도 쉽게 사용할 수 있도록 직관적인 UI/가이드 제공
+- **항상 다크모드**: 눈에 편안한 어두운 테마 고정
+- **가이드/툴팁**: 초보자도 쉽게 사용할 수 있도록 직관적인 UI/가이드 제공
 
 ---
 
@@ -22,7 +23,10 @@
 - **QR코드**: 각 캐비넷/사이트 접속용 QR코드 자동 생성
 - **반응형 UI/UX**: 모바일, 데스크탑 모두 최적화
 - **가이드/툴팁**: 좌상단 'i' 아이콘에 사용법 안내
-- **다크모드 지원**
+- **항상 다크모드**: 라이트모드 불가, 모든 배경/텍스트/코드블록/표/인용구 등 가독성 보장
+- **로딩/스피너**: 캐비넷 입장, 메모 저장 등 비동기 작업 시 버튼/화면에 스피너 표시
+- **모달/오버레이**: 모든 모달/로딩 오버레이는 투명+블러+어두운 배경
+- **알림 메시지**: 하단 중앙, fade-in-up 애니메이션, 1.5초 고정
 
 ---
 
@@ -43,7 +47,7 @@
 ```
 memorial-cabinet/
 ├── app/
-│   ├── page.tsx           # 메인 페이지(로컬/캐비넷 모드 UI)
+│   ├── page.tsx           # 메인 페이지(로컬/캐비넷 모드 UI, 스피너/로딩/분기)
 │   ├── layout.tsx         # 전체 레이아웃
 │   └── api/
 │       ├── cabinet/route.ts # 캐비넷 생성/입장 API
@@ -51,11 +55,11 @@ memorial-cabinet/
 ├── components/
 │   ├── Header.tsx         # 상단 헤더/로고/가이드/캐비넷 정보
 │   ├── MemoList.tsx       # 메모 목록
-│   ├── MemoEditor.tsx     # 메모 작성/수정
-│   ├── CabinetModal.tsx   # 캐비넷 생성/입장 모달
-│   ├── ConfirmModal.tsx   # 삭제 등 확인 모달
+│   ├── MemoEditor.tsx     # 메모 작성/수정(저장 버튼 스피너)
+│   ├── CabinetModal.tsx   # 캐비넷 생성/입장 모달(스피너)
+│   ├── ConfirmModal.tsx   # 삭제 등 확인 모달(블러/투명)
 │   ├── ToastMessage.tsx   # 알림 메시지
-│   └── MarkdownPreview.tsx# 마크다운 미리보기
+│   └── MarkdownPreview.tsx# 마크다운 미리보기(가독성 개선)
 ├── hooks/
 │   └── useLocalStorage.ts # 로컬스토리지 커스텀 훅
 ├── prisma/
@@ -75,6 +79,7 @@ memorial-cabinet/
 - **로컬 모드**: useLocalStorage 훅으로 브라우저에 메모 저장
 - **캐비넷 모드**: API 호출로 DB에 메모 저장/불러오기, 동기화
 - **모드 전환**: 헤더에서 "캐비넷 열기"/"나가기"로 전환
+- **캐비넷 입장 시**: 서버에서 메모 데이터를 모두 불러올 때까지 전체 메모 영역에 스피너 오버레이 표시
 
 ### 2. 캐비넷 생성/입장
 
@@ -82,17 +87,19 @@ memorial-cabinet/
 - 비밀번호 미설정 시 누구나 접근 가능, 설정 시 비밀번호 필요
 - Prisma + PostgreSQL로 Cabinet, Memo 테이블 관리
 - cuid로 고유 캐비넷 ID 생성, 일부만 노출
+- 캐비넷 생성/입장 버튼에 스피너 표시
 
 ### 3. QR코드
 
 - qrcode.react로 각 캐비넷/사이트 접속용 QR코드 생성
 - 로컬 모드: 사이트 주소, 캐비넷 모드: 해당 캐비넷 고유 URL
 
-### 4. UX/가이드
+### 4. UX/가이드/알림
 
-- 좌상단 'i' 아이콘에 마우스 오버 시 사용법 안내 툴팁
+- 좌상단 'i' 아이콘에 마우스 오버 시 사용법 안내 툴팁(아래쪽에 표시)
 - 모든 알림 메시지는 하단 중앙에 fade-in-up 애니메이션, 1.5초 고정
-- 모달 배경은 블러+투명 처리
+- 모달 배경/로딩 오버레이는 항상 어두운 투명+블러
+- 코드블록/표/인용구 등 마크다운 미리보기 가독성 보장
 
 ---
 
@@ -114,6 +121,7 @@ npm run dev
 - `DATABASE_URL` 환경변수 Vercel 대시보드에 등록
 - `package.json`에 `postinstall`/`build`에 `prisma generate` 포함
 - `qrcode.react` 등 모든 의존성 `dependencies`에 포함
+- 항상 다크모드로만 동작
 
 ---
 
@@ -124,7 +132,8 @@ npm run dev
 3. **로컬/DB 분기**: 메인 페이지에서 상태로 분기, useLocalStorage 훅 활용
 4. **UI/UX**: Tailwind CSS, 컴포넌트 구조 참고
 5. **QR코드**: qrcode.react 사용, 동적 import로 SSR 대응
-6. **알림/모달/가이드**: ToastMessage, ConfirmModal, Header의 GuideTooltip 참고
+6. **알림/모달/가이드/로딩**: ToastMessage, ConfirmModal, Header의 GuideTooltip, 스피너 오버레이 참고
+7. **마크다운 가독성**: globals.css, MarkdownPreview.tsx 참고
 
 ---
 
