@@ -77,10 +77,12 @@ export default function HomePage() {
   }>(null);
   const [isCabinetLoading, setIsCabinetLoading] = useState(false);
   const [isMemoSaving, setIsMemoSaving] = useState(false);
+  const [isCabinetDataLoading, setIsCabinetDataLoading] = useState(false);
 
   // 캐비넷 모드일 때 DB에서 메모 불러오기
   useEffect(() => {
     if (cabinetInfo) {
+      setIsCabinetDataLoading(true);
       // DB에서 메모 불러오기
       fetch(`/api/memo?cabinetId=${cabinetInfo.id}`)
         .then((res) => res.json())
@@ -102,7 +104,8 @@ export default function HomePage() {
             setCurrentMemoContent("");
             setCurrentMemoTitle("새 메모");
           }
-        });
+        })
+        .finally(() => setIsCabinetDataLoading(false));
     }
   }, [cabinetInfo]);
 
@@ -541,29 +544,37 @@ export default function HomePage() {
         }}
       />
       <div className="flex flex-grow overflow-hidden">
-        <MemoList
-          memos={filteredMemos}
-          selectedMemoId={selectedMemoId}
-          onSelectMemo={handleSelectMemo}
-          onDeleteMemo={handleDeleteMemo}
-          onUpdateMemoTitle={handleUpdateMemoTitle}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-        <MemoEditor
-          content={currentMemoContent}
-          onContentChange={setCurrentMemoContent}
-          title={currentMemoTitle}
-          onTitleChange={setCurrentMemoTitle}
-          onSaveMemo={async () => {
-            setIsMemoSaving(true);
-            await saveCurrentMemo();
-            setIsMemoSaving(false);
-          }}
-          isListEmpty={memos.length === 0}
-          onNewMemoClick={handleNewMemo}
-          isSaving={isMemoSaving}
-        />
+        {isCabinetDataLoading ? (
+          <div className="flex flex-1 items-center justify-center">
+            <span className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+          </div>
+        ) : (
+          <>
+            <MemoList
+              memos={filteredMemos}
+              selectedMemoId={selectedMemoId}
+              onSelectMemo={handleSelectMemo}
+              onDeleteMemo={handleDeleteMemo}
+              onUpdateMemoTitle={handleUpdateMemoTitle}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            <MemoEditor
+              content={currentMemoContent}
+              onContentChange={setCurrentMemoContent}
+              title={currentMemoTitle}
+              onTitleChange={setCurrentMemoTitle}
+              onSaveMemo={async () => {
+                setIsMemoSaving(true);
+                await saveCurrentMemo();
+                setIsMemoSaving(false);
+              }}
+              isListEmpty={memos.length === 0}
+              onNewMemoClick={handleNewMemo}
+              isSaving={isMemoSaving}
+            />
+          </>
+        )}
       </div>
       <div className="fixed bottom-6 right-6 z-50">
         {/* QR코드 표시 (캐비넷 모드: 해당 캐비넷 URL, 로컬 모드: 사이트 기본 주소) */}
