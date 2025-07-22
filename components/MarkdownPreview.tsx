@@ -15,7 +15,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content }) => {
 
   return (
     <div
-      className="markdown-body p-4 w-full h-full overflow-y-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+      className="markdown-body p-4 w-full h-full overflow-y-auto bg-gray-800 text-gray-100"
       dangerouslySetInnerHTML={createMarkup()} // 변환된 HTML을 삽입
     />
   );

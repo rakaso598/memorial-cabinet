@@ -108,9 +108,12 @@ body.dark .markdown-body h2 {
     monospace;
 }
 
-body.dark .markdown-body code {
-  background-color: #4a5568; /* Dark mode */
-  color: #e2e8f0;
+body.dark .markdown-body code,
+.markdown-body code,
+pre,
+body.dark pre {
+  background-color: #23272e !important;
+  color: #e2e8f0 !important;
 }
 
 .markdown-body pre {
@@ -124,4 +127,22 @@ body.dark .markdown-body code {
 body.dark .markdown-body pre {
   background-color: #4a5568; /* Dark mode */
   color: #e2e8f0;
+}
+
+.markdown-body table {
+  background-color: #23272e !important;
+  color: #e2e8f0 !important;
+  border-collapse: collapse;
+}
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #444;
+  padding: 0.5rem 1rem;
+}
+.markdown-body blockquote {
+  background-color: #23272e !important;
+  color: #e2e8f0 !important;
+  border-left: 4px solid #4a5568;
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
 }
