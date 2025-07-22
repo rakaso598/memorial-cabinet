@@ -561,9 +561,6 @@ export default function HomePage() {
       <div className="fixed bottom-6 right-6 z-50">
         {/* QR코드 표시 (캐비넷 모드: 해당 캐비넷 URL, 로컬 모드: 사이트 기본 주소) */}
         <div className="w-28 h-28 bg-gray-200 dark:bg-gray-700 rounded-xl flex flex-col items-center justify-center shadow-lg border border-gray-300 dark:border-gray-600">
-          <span className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-            QR 코드
-          </span>
           {cabinetInfo ? (
             <QRCode
               value={
@@ -581,9 +578,6 @@ export default function HomePage() {
               size={80}
             />
           )}
-          <span className="text-[10px] text-gray-400 mt-1">
-            {cabinetInfo ? "이 캐비넷 공유" : "사이트 접속"}
-          </span>
         </div>
       </div>
       <ConfirmModal
