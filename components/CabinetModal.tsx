@@ -26,7 +26,7 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
       setError("캐비넷 이름은 최대 6자까지 입력할 수 있습니다.");
       return;
     }
-    if (!/^[0-9]{4}$/.test(password)) {
+    if (password && !/^[0-9]{4}$/.test(password)) {
       setError("비밀번호는 숫자 4자리로 입력해야 합니다.");
       return;
     }
@@ -61,7 +61,7 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
           placeholder="예: mycab"
         />
         <label className="block mb-2 text-gray-700 dark:text-gray-200 text-sm font-semibold">
-          비밀번호 (숫자 4자리, 필수)
+          비밀번호 (숫자 4자리, 선택)
         </label>
         <input
           type="password"
@@ -71,7 +71,7 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
           inputMode="numeric"
           onChange={(e) => setPassword(e.target.value.replace(/[^0-9]/g, ""))}
           className="w-full mb-4 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
-          placeholder="숫자 4자리"
+          placeholder="숫자 4자리 (선택)"
         />
         {error && (
           <div className="text-red-500 text-xs mb-2 text-center">{error}</div>
@@ -93,7 +93,9 @@ const CabinetModal: React.FC<CabinetModalProps> = ({
         <div className="text-xs text-gray-500 dark:text-gray-300 mt-4 text-center">
           캐비넷 이름은 최대 6자, 비밀번호는 숫자 4자리만 입력할 수 있습니다.
           <br />
-          비밀번호는 반드시 입력해야 하며, 분실 시 복구가 불가합니다.
+          비밀번호는 입력하지 않아도 되며, 입력 시 반드시 숫자 4자리여야 합니다.
+          <br />
+          분실 시 복구가 불가합니다.
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (!/^[0-9]{4}$/.test(password)) {
+  if (password && !/^[0-9]{4}$/.test(password)) {
     return NextResponse.json(
       { error: "비밀번호는 숫자 4자리여야 합니다." },
       { status: 400 }
